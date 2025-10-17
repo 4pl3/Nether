@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Nether S.A.C. — Base de Datos</title>
+  <title>Nether S.A.C.</title>
 
   <!-- NO CACHE -->
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -15,7 +15,7 @@
   <style>
     .material-symbols-outlined{
       font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
-      font-size: 1.2em; line-height: 1; vertical-align: -2px;
+      font-size:1em; line-height:1; vertical-align:-2px;
     }
   </style>
 
@@ -24,240 +24,337 @@
 
   <style>
     :root{
-      --font-family-base:"Arial-BoldMT", Inter, Arial, Helvetica, sans-serif;
-      --font-size-base:12px;   /* un poco más pequeño */
+      --font-family-base:"Inter",system-ui,-apple-system,"Segoe UI",Arial,Helvetica,sans-serif;
+      --font-size-base:11px;
       --strip-height:22px;
       --strip-speed:26s;
       --brand:#0000ee;
-      --border:#c6c6c6;
+      --border:#d7d7d7;
       --bg:#ffffff;
       --accent:#1e40af;
       --accent-2:#eef2ff;
       --danger:#c53030;
-      --muted:#777;
+      --muted:#737373;
       --ok:#0d8a4e;
-      --hover:#fff9c4; /* amarillo claro */
+      --hover:#fff9c4;
       --radius:10px;
+      --scroll:#bdbdbd;
+
+      --gap:12px;
+      --footer-h:38px;
+      --wrap-mt:10px;
     }
 
-    html,body{height:100%;margin:0}
+    *{box-sizing:border-box}
+    html,body{min-height:100%}
+    html{overflow:auto}
     body{
+      margin:0;
       font-family:var(--font-family-base);
       font-size:var(--font-size-base);
+      color:#1f2937;
       background:var(--bg);
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
       display:flex; flex-direction:column; min-height:100vh;
     }
 
-    /* ====== Layout general ====== */
-    .wrap{max-width:1200px;margin:12px auto;padding:0 12px; width:100%; flex:1 0 auto;}
-    .app{border:1px solid var(--border);border-radius:12px;background:#fff;padding:14px; box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    h3{margin:0 0 6px;font-weight:700;color:#111827}
 
-    /* ====== Topbar (dentro del appBox) ====== */
-    .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
-    .search{flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:5px 8px}
-    .search input{border:none;outline:none;flex:1;font:inherit}
-    .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tab{border:1px solid var(--border);border-radius:999px;padding:5px 10px;cursor:pointer;background:#f8f8f8;font:inherit}
-    .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
-
-    /* ====== Botones ====== */
-    .btn{border:1px solid var(--border);border-radius:8px;background:#f7f8ff;padding:5px 8px;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:6px}
-    .btn:hover{background:#eef2ff}
-    .btn.primary{background:var(--accent-2);border-color:#c3d0ff}
-    .btn.danger{background:#fff0f0;border-color:#f3c7c7}
-    .btn.ghost{background:#fff}
-
-    /* ====== Main two-column: barra de botones a un lado ====== */
-    .main{display:flex;gap:12px;align-items:flex-start}
-    .side{
-      width:210px; flex:0 0 210px;
-      border:1px solid var(--border); border-radius:var(--radius); padding:10px;
-      display:flex; flex-direction:column; gap:8px; background:#fafafa;
-    }
-    .content{flex:1; min-width:0}
-
-    @media(max-width:880px){
-      .main{flex-direction:column}
-      .side{width:100%}
+    .wrap{
+      max-width:1200px; margin:var(--wrap-mt) auto 0; padding:0 var(--gap); width:100%; flex:1 0 auto;
     }
 
-    /* ====== Formularios / campos ====== */
-    .grid{display:grid;gap:8px}
-    .cols-2{grid-template-columns:1fr 1fr}
-    .cols-3{grid-template-columns:repeat(3,1fr)}
-    @media(max-width:820px){ .cols-2,.cols-3{grid-template-columns:1fr} }
-
-    label{font-weight:700;font-size:var(--font-size-base)}
-    .field{display:flex;flex-direction:column;gap:4px}
-    .field input,.field select,.field textarea{
-      border:1px solid var(--border); border-radius:6px; padding:6px; font:inherit;
-      outline:none; box-shadow:none;
-    }
-    /* No engrosar al foco */
-    .field input:focus,.field select:focus,.field textarea:focus{border:1px solid var(--border); outline:none; box-shadow:none}
-    .search input:focus{outline:none}
-
-    .section{margin-top:10px}
-    h1,h2,h3,h4,h5,h6{margin:0 0 6px;font-size:var(--font-size-base);font-weight:700}
-    .muted{color:var(--muted)}
-    .status{font-size:var(--font-size-base);color:var(--muted)}
-    .ok{color:var(--ok)}
-    .error{color:var(--danger)}
-
-    /* ====== Tabla ====== */
-    table{width:100%;border-collapse:collapse}
-    th,td{border-bottom:1px solid #ececec;padding:6px 8px;text-align:left}
-    th{background:#f7f7f7}
-    tbody tr:hover{background:var(--hover)}
-    tbody tr.selected{background:var(--hover)}
-    .empty{color:var(--muted);font-style:italic}
-
-    /* ====== Auth box (pantalla inicial) ====== */
-    .auth{
-      max-width:520px;margin:16px auto;padding:16px;border:1px solid var(--border);
-      border-radius:8px;background:#fff
+    .app{
+      border:1px solid var(--border); border-radius:12px; background:#fff; padding:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,.05); display:flex; flex-direction:column;
     }
 
-    /* ====== Ticker (solo visible dentro de sesión) ====== */
+    /* ====== Ticker (solo en sesión) ====== */
     .moving-strip{
-      width:100%;height:var(--strip-height);
-      background:linear-gradient(to bottom,#e9e9e98c 0%,#ffffff 100%);
-      overflow:hidden;position:relative; flex:0 0 auto; border-radius:8px; margin-bottom:10px;
+      width:100%; height:var(--strip-height);
+      background:linear-gradient(to bottom,#ececec8c 0%,#ffffff 100%);
+      overflow:hidden; position:sticky; top:0; z-index:30; border-radius:0; margin:0; padding:0 var(--gap);
+      display:none;
     }
     .scroll-text{
-      position:absolute;top:0;left:0;white-space:nowrap;display:inline-block;
-      padding:0 .75rem;color:var(--brand);line-height:var(--strip-height);
-      will-change:transform;visibility:hidden;transform:translateX(var(--start,0px));
+      position:absolute; top:0; left:12px; white-space:nowrap; display:inline-block;
+      padding:0 .75rem; color:var(--brand); line-height:var(--strip-height);
+      will-change:transform; visibility:hidden; transform:translateX(var(--start,0px));
       animation:marqueePx var(--strip-speed) linear infinite;
     }
     @keyframes marqueePx{from{transform:translateX(var(--start));}to{transform:translateX(var(--end));}}
 
+    /* ====== Grid principal ====== */
+    .app-main{
+      display:grid;
+      grid-template-columns:320px minmax(0,1fr);
+      gap:var(--gap);
+      align-items:start;
+      min-height:0;
+      min-width:0;  /* << ayuda a que el grid respete los min-width:0 de sus hijos */
+    }
+    @media(max-width:980px){ .app-main{ grid-template-columns:1fr; } }
+
+    /* ====== Topbar ====== */
+    .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+    .search{flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:10px;padding:6px 10px;background:#fafafa}
+    .search input{border:none;outline:none;flex:1;font:inherit;background:transparent}
+    .search input::placeholder{color:#9ca3af}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{border:1px solid var(--border);border-radius:999px;padding:4px 10px;cursor:pointer;background:#f8f8f8;font:inherit;line-height:1.2;white-space:nowrap}
+    .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
+
+    /* ====== Izquierda ====== */
+    .left{
+      min-height:0;
+      min-width:0;   /* << clave */
+    }
+    .actions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .btn{
+      --pad-y:4px; --pad-x:10px;
+      border:1px solid var(--border); border-radius:10px; background:#f7f8ff;
+      padding:var(--pad-y) var(--pad-x); cursor:pointer; font:inherit; display:inline-flex; align-items:center; gap:6px; line-height:1.2; white-space:nowrap;
+      user-select:none; transition:box-shadow .15s ease, transform .02s ease, background .15s ease, border-color .15s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn:hover{background:#eef2ff}
+    .btn.primary{background:var(--accent-2);border-color:#c3d0ff}
+    .btn.danger{background:#fff0f0;border-color:#f3c7c7}
+    .btn.ghost{background:#fff}
+    .btn.icon{padding:4px 6px}
+    .btn:focus,.btn:focus-visible{outline:none; box-shadow:none}
+
+    .section{margin-top:8px}
+    .grid{display:grid;gap:6px}
+    .cols-3{grid-template-columns:repeat(3,1fr)}
+    .left .cols-3{grid-template-columns:1fr}
+    @media(max-width:820px){ .cols-3{grid-template-columns:1fr} }
+
+    label{font-weight:700;font-size:var(--font-size-base);display:flex;align-items:center;gap:6px}
+    .field{display:flex;flex-direction:column;gap:3px}
+    .field input,.field select,.field textarea{
+      border:1px solid var(--border); border-radius:8px; padding:5px 8px; font:inherit; outline:none; box-shadow:none; background:#fff
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--border); box-shadow:none; outline:none}
+    .input-row{display:flex;align-items:center;gap:6px}
+
+    /* ====== Derecha: tabla responsive ====== */
+    .right{
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      min-width:0;   /* << clave */
+    }
+    .list-viewport{
+      flex:1;
+      min-height:0;
+      min-width:0;   /* << clave */
+      display:flex;
+      flex-direction:column;
+    }
+    /* REEMPLAZO 2 — Contenedor de tabla con scroll SOLO interno */
+    .table-wrap{
+      border:1px solid var(--border);
+      border-radius:10px;
+      background:#fff;
+      overflow:auto;          /* scroll horizontal/vertical solo aquí */
+      max-width:100%;         /* no permite desbordar el layout */
+      flex:1;
+      min-height:0;
+
+      /* Scrollbars finos */
+      scrollbar-width:thin;
+      scrollbar-color:var(--scroll) transparent;
+    }
+    .table-wrap::-webkit-scrollbar{width:6px;height:6px}
+    .table-wrap::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px}
+    .table-wrap::-webkit-scrollbar-track{background:transparent}
+
+    /* La tabla se ajusta al contenido: si es ancha => aparece scroll en .table-wrap */
+    .table-wrap > table{
+      width:max-content;      /* se expande al contenido real */
+      min-width:100%;         /* pero al menos ocupa el ancho disponible */
+      border-collapse:collapse;
+      table-layout:auto;
+    }
+
+    /* Celdas: TODO en UNA SOLA LÍNEA (sin cortes), sin romper palabras */
+    .table-wrap th,
+    .table-wrap td{
+      white-space:nowrap !important;
+      word-break:normal !important;
+      overflow-wrap:normal !important;
+      hyphens:none;
+      border-bottom:1px solid #efefef;
+      padding:6px 10px;
+      text-align:left;
+      vertical-align:top;
+    }
+
+    /* Cabecera sticky */
+    .table-wrap th{
+      background:#f9fafb;
+      position:sticky;
+      top:0;
+      z-index:1;
+      color:#374151;
+      font-weight:700;
+    }
+    /* ====== Login centrado (compacto) ====== */
+    .auth-wrap{
+      display:grid; place-items:center;
+      min-height:calc(100vh - var(--strip-height) - var(--footer-h) - (var(--wrap-mt) + 16px));
+    }
+    .auth{
+      width:100%; max-width:340px; padding:12px;
+      border:1px solid var(--border); border-radius:12px; background:#fff;
+      box-shadow:0 2px 12px rgba(0,0,0,.05)
+    }
+    .auth-grid{grid-template-columns:1fr}
+
     /* Footer */
-    footer{ text-align:center; color:#808080; padding:10px 0 16px; flex:0 0 auto;}
+    footer{text-align:center;color:#808080;padding:10px 0 16px;flex:0 0 auto}
+
+        /* Interacción de filas (opcional, como antes) */
+    .table-wrap tbody tr:hover{ background:var(--hover); }
+    .table-wrap tbody tr.selected{ background:var(--hover); }
   </style>
 </head>
 <body>
 
+  <!-- ====== Ticker ====== -->
+  <div class="moving-strip" id="tickerWrap">
+    <span class="scroll-text" id="ticker">Nether S.A.C. / Base de datos interna</span>
+  </div>
+
   <div class="wrap">
-    <div class="app">
+    <!-- ====== LOGIN ====== -->
+    <div id="authWrap" class="auth-wrap">
+      <form id="auth-form" class="auth" autocomplete="on" novalidate>
+        <h3 style="display:flex;align-items:center;gap:6px">
+          <span class="material-symbols-outlined">lock</span>
+          Iniciar sesión
+        </h3>
 
-      <!-- ====== AUTH SOLO (inicio) ====== -->
-      <div id="authBox" class="auth" style="display:none">
-        <h3>Acceso privado — Nether S.A.C.</h3>
-        <div class="grid cols-2">
-          <div class="field"><label>Correo</label><input id="auth-email" type="email" placeholder="tu@empresa.com"/></div>
-          <div class="field"><label>Contraseña</label><input id="auth-pass" type="password" placeholder="••••••••"/></div>
-        </div>
-        <div class="grid cols-2" style="margin-top:8px">
-          <button class="btn primary" id="btnLogin"><span class="material-symbols-outlined">login</span> Ingresar</button>
-          <!-- Signup eliminado para evitar registros abiertos -->
-        </div>
-        <div id="auth-msg" class="status" style="margin-top:6px"></div>
-      </div>
-
-      <!-- ====== APP (solo si hay sesión) ====== -->
-      <div id="appBox" style="display:none">
-
-        <!-- Ticker dentro de sesión -->
-        <div class="moving-strip">
-          <span class="scroll-text" id="ticker">Nether S.A.C. — Base de datos interna • Personal | Bienes | Servicios • Acceso privado</span>
-        </div>
-
-        <!-- TOP -->
-        <div class="topbar">
-          <div class="search" style="flex:1">
-            <span class="material-symbols-outlined">search</span>
-            <input id="q" type="search" placeholder="Buscar por nombre, DNI, RUC, celular, empresa, etc."/>
+        <div class="grid auth-grid" style="margin-top:8px">
+          <div class="field">
+            <label><span class="material-symbols-outlined">mail</span> Correo</label>
+            <div class="input-row">
+              <input id="auth-email" type="email" placeholder="tu@empresa.com" style="flex:1" />
+            </div>
           </div>
-
-          <div class="tabs">
-            <button class="tab active" data-tab="todo">Todo</button>
-            <button class="tab" data-tab="personas">Personal</button>
-            <button class="tab" data-tab="bienes">Bienes</button>
-            <button class="tab" data-tab="servicios">Servicios</button>
+          <div class="field">
+            <label><span class="material-symbols-outlined">key</span> Contraseña</label>
+            <div class="input-row">
+              <input id="auth-pass" type="password" placeholder="••••••••" style="flex:1" />
+              <button type="button" id="togglePass" class="btn ghost icon" title="Ver/Ocultar">
+                <span class="material-symbols-outlined">visibility</span>
+              </button>
+            </div>
           </div>
-
-          <button class="btn ghost" id="btnExport"><span class="material-symbols-outlined">file_export</span> Exportar CSV</button>
-          <span id="conn" class="status">—</span>
         </div>
 
-        <!-- Layout con barra lateral de botones + contenido -->
-        <div class="main">
-          <aside class="side">
+        <div style="margin-top:8px;display:flex;gap:8px;align-items:center">
+          <button class="btn primary" id="btnLogin" type="submit">
+            <span class="material-symbols-outlined">login</span> Ingresar
+          </button>
+          <div id="auth-msg" class="status"></div>
+        </div>
+      </form>
+    </div>
+
+    <!-- ====== APP (solo si hay sesión) ====== -->
+    <div id="appBox" class="app" style="display:none">
+      <div class="app-main">
+        <!-- IZQUIERDA -->
+        <aside class="left">
+          <div class="actions">
             <button class="btn primary" id="btnPersonal"><span class="material-symbols-outlined">person</span> Personal</button>
             <button class="btn primary" id="btnBienes"><span class="material-symbols-outlined">inventory_2</span> Bienes</button>
             <button class="btn primary" id="btnServicios"><span class="material-symbols-outlined">home_repair_service</span> Servicios</button>
-            <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
-            <button class="btn danger" id="btnSignOut"><span class="material-symbols-outlined">logout</span> Cerrar sesión</button>
-          </aside>
+          </div>
 
-          <section class="content">
-            <!-- FORMULARIOS -->
-            <div class="section" id="sec-persona" style="display:none">
-              <h3>Personal</h3>
-              <div class="grid cols-3">
-                <div class="field"><label>Nombres completos</label><input id="p-nombres" /></div>
-                <div class="field"><label>DNI</label><input id="p-dni" /></div>
-                <div class="field"><label>Celular</label><input id="p-celular" /></div>
-                <div class="field"><label>RUC</label><input id="p-ruc" /></div>
-                <div class="field"><label>Dirección</label><input id="p-direccion" /></div>
-                <div class="field"><label>N° Cuenta</label><input id="p-cuenta" /></div>
-                <div class="field"><label>Banco</label><input id="p-banco" /></div>
-              </div>
-              <div style="margin-top:8px">
-                <button class="btn primary" id="save-persona"><span class="material-symbols-outlined">save</span> Guardar</button>
-                <span id="msg-persona" class="status"></span>
-              </div>
+          <!-- Formularios -->
+          <div class="section" id="sec-persona" style="display:none">
+            <h3><span class="material-symbols-outlined">badge</span> Personal</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombres completos</label><input id="p-nombres" /></div>
+              <div class="field"><label>DNI</label><input id="p-dni" /></div>
+              <div class="field"><label>Celular</label><input id="p-celular" /></div>
+              <div class="field"><label>RUC</label><input id="p-ruc" /></div>
+              <div class="field"><label>Dirección</label><input id="p-direccion" /></div>
+              <div class="field"><label>N° Cuenta</label><input id="p-cuenta" /></div>
+              <div class="field"><label>Banco</label><input id="p-banco" /></div>
             </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-persona"><span class="material-symbols-outlined">save</span> Guardar</button>
+              <span id="msg-persona" class="status"></span>
+            </div>
+          </div>
 
-            <div class="section" id="sec-bien" style="display:none">
-              <h3>Bienes</h3>
-              <div class="grid cols-3">
-                <div class="field"><label>Nombre del proveedor</label><input id="b-nombre" /></div>
-                <div class="field"><label>Empresa</label><input id="b-empresa" /></div>
-                <div class="field"><label>RUC</label><input id="b-ruc" /></div>
-                <div class="field"><label>Celular</label><input id="b-celular" /></div>
-                <div class="field"><label>¿Qué provee?</label><input id="b-provee" /></div>
-              </div>
-              <div style="margin-top:8px">
-                <button class="btn primary" id="save-bien"><span class="material-symbols-outlined">save</span> Guardar</button>
-                <span id="msg-bien" class="status"></span>
-              </div>
+          <div class="section" id="sec-bien" style="display:none">
+            <h3><span class="material-symbols-outlined">inventory_2</span> Bienes</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombre del proveedor</label><input id="b-nombre" /></div>
+              <div class="field"><label>Empresa</label><input id="b-empresa" /></div>
+              <div class="field"><label>RUC</label><input id="b-ruc" /></div>
+              <div class="field"><label>Celular</label><input id="b-celular" /></div>
+              <div class="field"><label>¿Qué provee?</label><input id="b-provee" /></div>
             </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-bien"><span class="material-symbols-outlined">save</span> Guardar</button>
+              <span id="msg-bien" class="status"></span>
+            </div>
+          </div>
 
-            <div class="section" id="sec-serv" style="display:none">
-              <h3>Servicios</h3>
-              <div class="grid cols-3">
-                <div class="field"><label>Nombre del proveedor</label><input id="s-nombre" /></div>
-                <div class="field"><label>Empresa</label><input id="s-empresa" /></div>
-                <div class="field"><label>RUC</label><input id="s-ruc" /></div>
-                <div class="field"><label>Celular</label><input id="s-celular" /></div>
-                <div class="field"><label>Servicio que brinda</label><input id="s-servicio" /></div>
-              </div>
-              <div style="margin-top:8px">
-                <button class="btn primary" id="save-serv"><span class="material-symbols-outlined">save</span> Guardar</button>
-                <span id="msg-serv" class="status"></span>
-              </div>
+          <div class="section" id="sec-serv" style="display:none">
+            <h3><span class="material-symbols-outlined">home_repair_service</span> Servicios</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombre del proveedor</label><input id="s-nombre" /></div>
+              <div class="field"><label>Empresa</label><input id="s-empresa" /></div>
+              <div class="field"><label>RUC</label><input id="s-ruc" /></div>
+              <div class="field"><label>Celular</label><input id="s-celular" /></div>
+              <div class="field"><label>Servicio que brinda</label><input id="s-servicio" /></div>
             </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-serv"><span class="material-symbols-outlined">save</span> Guardar</button>
+              <span id="msg-serv" class="status"></span>
+            </div>
+          </div>
+        </aside>
 
-            <!-- LISTADOS -->
-            <div class="section">
-              <h3 id="list-title">Resultados</h3>
-              <div id="lists">
-                <div class="section" id="list-personas"></div>
-                <div class="section" id="list-bienes"></div>
-                <div class="section" id="list-servicios"></div>
-              </div>
+        <!-- DERECHA -->
+        <section class="right">
+          <div class="topbar">
+            <div class="search" style="flex:1">
+              <span class="material-symbols-outlined">search</span>
+              <input id="q" type="search" placeholder="Buscar por nombre, DNI, RUC, celular, empresa, etc."/>
             </div>
-          </section>
-        </div>
+            <div class="tabs">
+              <button class="tab active" data-tab="todo">Todo</button>
+              <button class="tab" data-tab="personas">Personal</button>
+              <button class="tab" data-tab="bienes">Bienes</button>
+              <button class="tab" data-tab="servicios">Servicios</button>
+            </div>
+            <button class="btn ghost" id="btnExport"><span class="material-symbols-outlined">file_export</span> Exportar CSV</button>
+            <button class="btn danger icon" id="btnSignOut" title="Cerrar sesión"><span class="material-symbols-outlined">logout</span></button>
+            <span id="conn" class="status">—</span>
+          </div>
+
+          <div class="list-viewport">
+            <h3 id="list-title" style="margin-bottom:6px">Resultados</h3>
+            <div id="lists" style="flex:1;min-height:0">
+              <div class="section" id="list-personas"></div>
+              <div class="section" id="list-bienes"></div>
+              <div class="section" id="list-servicios"></div>
+            </div>
+          </div>
+        </section>
       </div>
-
     </div>
   </div>
 
-  <footer>© Nether S.A.C. — Base de datos interna.</footer>
+  <footer>Nether S.A.C.</footer>
 
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -271,8 +368,8 @@
     const T_BIENES    = "proveedores_bienes";
     const T_SERVICIOS = "proveedores_servicios";
 
-    // Opcional: restringir login por dominio (edita esta lista; si la dejas vacía, no restringe)
-    const ALLOWED_DOMAINS = []; // Ej.: ['nether.com.pe','nether-sac.com']
+    // (Opcional) Restringir correos por dominio
+    const ALLOWED_DOMAINS = []; // ej.: ['nether.com.pe','nether-sac.com']
     function isAllowedEmail(email){
       if(!ALLOWED_DOMAINS.length) return true;
       const domain = email.split('@')[1]?.toLowerCase();
@@ -285,7 +382,7 @@
     let cache = { personas: [], bienes: [], servicios: [] };
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const $ = (sel, root=document) => root.querySelector(sel);
+    const $  = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
     function setConnStatus(ok){
@@ -295,7 +392,7 @@
       el.className = "status " + (ok ? "ok" : "error");
     }
 
-    // ===== Ticker (solo cuando app visible) =====
+    // ===== Ticker =====
     function initTicker(){
       const el = document.getElementById('ticker');
       if(!el) return;
@@ -313,7 +410,6 @@
     // ===== Auth & App init =====
     async function init(){
       setConnStatus(!!SUPABASE_URL && !!SUPABASE_ANON_KEY);
-
       const { data } = await supabase.auth.getUser();
       user = data?.user || null;
       toggleApp(!!user);
@@ -326,12 +422,22 @@
     }
 
     function toggleApp(showApp){
-      $("#authBox").style.display = showApp ? "none" : "block";
-      $("#appBox").style.display  = showApp ? "block" : "none";
+      $("#authWrap").style.display  = showApp ? "none" : "grid";
+      $("#appBox").style.display    = showApp ? "block" : "none";
+      $("#tickerWrap").style.display= showApp ? "block" : "none";
     }
 
-    // ===== Login (sin signup público) =====
-    $("#btnLogin").addEventListener("click", async () => {
+    // Mostrar/ocultar contraseña
+    $("#togglePass")?.addEventListener("click", ()=>{
+      const i = $("#auth-pass");
+      if(!i) return;
+      const showing = i.type === "text";
+      i.type = showing ? "password" : "text";
+      $("#togglePass span").textContent = showing ? "visibility" : "visibility_off";
+    });
+
+    // ===== Login con Enter (submit del form) =====
+    async function doLogin(){
       const email = $("#auth-email").value.trim();
       const pass  = $("#auth-pass").value.trim();
       if(!isAllowedEmail(email)){
@@ -345,8 +451,13 @@
       $("#auth-msg").textContent = "Listo.";
       toggleApp(true);
       initTicker();
-      await fetchAll();
-      render();
+      await fetchAll(); render();
+    }
+
+    // Submit del formulario (Enter o click en Ingresar)
+    $("#auth-form").addEventListener("submit", async (e)=>{
+      e.preventDefault();
+      await doLogin();
     });
 
     // ===== Cerrar sesión =====
@@ -367,7 +478,7 @@
       });
     });
 
-    // ===== Mostrar formularios =====
+    // ===== Mostrar formularios (izquierda) =====
     $("#btnPersonal").addEventListener("click", () => showForm("persona"));
     $("#btnBienes").addEventListener("click", () => showForm("bien"));
     $("#btnServicios").addEventListener("click", () => showForm("serv"));
@@ -376,7 +487,8 @@
       $("#sec-persona").style.display = which==="persona" ? "block" : "none";
       $("#sec-bien").style.display    = which==="bien"    ? "block" : "none";
       $("#sec-serv").style.display    = which==="serv"    ? "block" : "none";
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Evita “saltos” en responsive: scroll suave sólo si queda fuera de vista
+      document.querySelector('.left')?.scrollIntoView({ behavior:"smooth", block:"nearest" });
     }
 
     // ===== Guardar registros =====
@@ -395,7 +507,7 @@
       const { error } = await supabase.from(T_PERSONAS).insert(payload);
       if(error){ $("#msg-persona").textContent = "Error: "+error.message; return; }
       $("#msg-persona").textContent = "Guardado.";
-      Object.keys(payload).forEach(k=>{ const el = document.getElementById("p-"+k); if(el) el.value = ""; });
+      document.querySelectorAll("#sec-persona input").forEach(i=>i.value="");
       await fetchAll(); render();
     });
 
@@ -461,14 +573,16 @@
       const bienes   = cache.bienes.filter(r   => matchesSearch(r, ["nombre","empresa","ruc","celular","provee"]));
       const servs    = cache.servicios.filter(r=> matchesSearch(r, ["nombre","empresa","ruc","celular","servicio"]));
 
-      $("#list-personas").innerHTML = tablePersonas(personas);
-      $("#list-bienes").innerHTML   = tableBienes(bienes);
-      $("#list-servicios").innerHTML= tableServicios(servs);
+      $("#list-personas").innerHTML = tableWrap(tablePersonas(personas));
+      $("#list-bienes").innerHTML   = tableWrap(tableBienes(bienes));
+      $("#list-servicios").innerHTML= tableWrap(tableServicios(servs));
 
       $("#list-personas").style.display = (activeTab==="todo" || activeTab==="personas") ? "block" : "none";
       $("#list-bienes").style.display   = (activeTab==="todo" || activeTab==="bienes")   ? "block" : "none";
       $("#list-servicios").style.display= (activeTab==="todo" || activeTab==="servicios")? "block" : "none";
     }
+
+    function tableWrap(innerHTML){ return `<div class="table-wrap">${innerHTML}</div>`; }
 
     function tablePersonas(rows){
       if(!rows.length) return '<div class="empty">Sin registros.</div>';
@@ -521,16 +635,15 @@
     }
 
     function esc(s){
-      return (s==null?"":String(s)).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+      return (s==null ? "" : String(s)).replace(/[&<>"']/g, c => (
+        {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]
+      ));
     }
 
-    // ===== Buscar =====
-    $("#q").addEventListener("input", (e)=>{
-      searchTerm = e.target.value;
-      render();
-    });
+    // Buscar
+    $("#q").addEventListener("input", (e)=>{ searchTerm = e.target.value; render(); });
 
-    // ===== Export CSV =====
+    // Export CSV
     $("#btnExport").addEventListener("click", ()=>{
       let rows = [];
       if(activeTab==="personas"){
@@ -542,7 +655,7 @@
       } else {
         rows = [
           ...cache.personas.map(r=>({tipo:"personal", ...r})),
-          ...cache.bienes.map(r=>({tipo:"bien", ...r})),
+          ...cache.bienes  .map(r=>({tipo:"bien",     ...r})),
           ...cache.servicios.map(r=>({tipo:"servicio", ...r})),
         ];
       }
@@ -550,9 +663,7 @@
       const blob = new Blob([csv], {type:"text/csv;charset=utf-8;"});
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `export_${activeTab}.csv`;
-      a.click();
+      a.href = url; a.download = `export_${activeTab}.csv`; a.click();
       URL.revokeObjectURL(url);
     });
 
@@ -561,17 +672,40 @@
       const headers = Array.from(new Set(rows.flatMap(r=>Object.keys(r)))).filter(k=>!["id","user_id"].includes(k));
       const escF = v => `"${(v==null?"":String(v)).replace(/"/g,'""')}"`;
       let out = headers.join(",") + "\n";
-      for(const r of rows){
-        out += headers.map(h=>escF(r[h]??"")).join(",") + "\n";
-      }
+      for(const r of rows){ out += headers.map(h=>escF(r[h]??"")).join(",") + "\n"; }
       return out;
     }
 
-    // ===== Selección de filas (clic) =====
+    // Selección de filas (persistente: 1 a la vez, ESC limpia)
     $("#lists").addEventListener("click", (e)=>{
       const tr = e.target.closest("tr");
       if(!tr) return;
-      tr.classList.toggle("selected"); // permite varias seleccionadas
+      $$("#lists tr.selected").forEach(x=>x.classList.remove("selected"));
+      tr.classList.add("selected");
+    });
+
+    // ===== ESC: limpiar/cancelar en cualquier parte =====
+    function escReset(){
+      $$("#lists tr.selected").forEach(tr=>tr.classList.remove("selected"));
+      ["persona","bien","serv"].forEach(id=>{
+        const sec = document.getElementById("sec-"+id);
+        if(sec && sec.style.display!=="none"){
+          sec.querySelectorAll("input,textarea,select").forEach(i=>i.value="");
+          sec.style.display="none";
+        }
+      });
+      const ae = document.activeElement;
+      if(ae && (ae.tagName==="INPUT" || ae.tagName==="TEXTAREA")) { ae.value=""; }
+      ["msg-persona","msg-bien","msg-serv","auth-msg"].forEach(id=>{
+        const m = document.getElementById(id); if(m) m.textContent="";
+      });
+    }
+
+    document.addEventListener("keydown",(e)=>{
+      if(e.key==="Escape"){
+        e.preventDefault();
+        escReset();
+      }
     });
 
     // Go!
