@@ -12,12 +12,6 @@
 
   <!-- Google Icons (Material Symbols) -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
-  <style>
-    .material-symbols-outlined{
-      font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
-      font-size:1em; line-height:1; vertical-align:-2px;
-    }
-  </style>
 
   <!-- Fuente base -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -28,6 +22,7 @@
       --font-size-base:11px;
       --strip-height:22px;
       --strip-speed:26s;
+
       --brand:#0000ee;
       --border:#d7d7d7;
       --bg:#ffffff;
@@ -43,6 +38,11 @@
       --gap:12px;
       --footer-h:38px;
       --wrap-mt:10px;
+
+      /* Íconos */
+      --icon-blue:#0000ff;          /* azul claro */
+      --icon-size:18px;             /* tamaño general de íconos */
+      --row-action-size:20px;       /* tamaño para lápiz/tacho */
     }
 
     *{box-sizing:border-box}
@@ -58,41 +58,36 @@
       display:flex; flex-direction:column; min-height:100vh;
     }
 
+    /* Material Symbols (tamaño/color global, SIN negrita) */
+    .material-symbols-outlined{
+      font-variation-settings:'FILL' 0,'wght' 300,'GRAD' 0,'opsz' 24;
+      font-weight:300 !important;
+      font-size:var(--icon-size);
+      line-height:1;
+      vertical-align:-2px;
+      color:var(--icon-blue);
+    }
+    label .material-symbols-outlined{ font-weight:300 !important; }
+
+    /* Sign out rojo */
+    #btnSignOut .material-symbols-outlined{ color:#e53935; }
+    #btnSignOut:hover .material-symbols-outlined{ color:#b71c1c; }
+
     h3{margin:0 0 6px;font-weight:700;color:#111827}
 
-    .wrap{
-      max-width:1200px; margin:var(--wrap-mt) auto 0; padding:0 var(--gap); width:100%; flex:1 0 auto;
-    }
-
+    .wrap{ max-width:1200px; margin:var(--wrap-mt) auto 0; padding:0 var(--gap); width:100%; flex:1 0 auto; }
     .app{
       border:1px solid var(--border); border-radius:12px; background:#fff; padding:12px;
       box-shadow:0 2px 12px rgba(0,0,0,.05); display:flex; flex-direction:column;
     }
 
-    /* ====== Ticker (solo en sesión) ====== */
-    .moving-strip{
-      width:100%; height:var(--strip-height);
-      background:linear-gradient(to bottom,#ececec8c 0%,#ffffff 100%);
-      overflow:hidden; position:sticky; top:0; z-index:30; border-radius:0; margin:0; padding:0 var(--gap);
-      display:none;
-    }
-    .scroll-text{
-      position:absolute; top:0; left:12px; white-space:nowrap; display:inline-block;
-      padding:0 .75rem; color:var(--brand); line-height:var(--strip-height);
-      will-change:transform; visibility:hidden; transform:translateX(var(--start,0px));
-      animation:marqueePx var(--strip-speed) linear infinite;
-    }
+    /* ====== Ticker ====== */
+    .moving-strip{ width:100%; height:var(--strip-height); background:linear-gradient(to bottom,#ececec8c 0%,#ffffff 100%); overflow:hidden; position:sticky; top:0; z-index:30; border-radius:0; margin:0; padding:0 var(--gap); display:none; }
+    .scroll-text{ position:absolute; top:0; left:12px; white-space:nowrap; display:inline-block; padding:0 .75rem; color:var(--brand); line-height:var(--strip-height); will-change:transform; visibility:hidden; transform:translateX(var(--start,0px)); animation:marqueePx var(--strip-speed) linear infinite; }
     @keyframes marqueePx{from{transform:translateX(var(--start));}to{transform:translateX(var(--end));}}
 
     /* ====== Grid principal ====== */
-    .app-main{
-      display:grid;
-      grid-template-columns:320px minmax(0,1fr);
-      gap:var(--gap);
-      align-items:start;
-      min-height:0;
-      min-width:0;  /* << ayuda a que el grid respete los min-width:0 de sus hijos */
-    }
+    .app-main{ display:grid; grid-template-columns:320px minmax(0,1fr); gap:var(--gap); align-items:start; min-height:0; min-width:0; }
     @media(max-width:980px){ .app-main{ grid-template-columns:1fr; } }
 
     /* ====== Topbar ====== */
@@ -105,10 +100,7 @@
     .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
 
     /* ====== Izquierda ====== */
-    .left{
-      min-height:0;
-      min-width:0;   /* << clave */
-    }
+    .left{ min-height:0; min-width:0; }
     .actions{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
     .btn{
       --pad-y:4px; --pad-x:10px;
@@ -132,37 +124,23 @@
 
     label{font-weight:700;font-size:var(--font-size-base);display:flex;align-items:center;gap:6px}
     .field{display:flex;flex-direction:column;gap:3px}
-    .field input,.field select,.field textarea{
-      border:1px solid var(--border); border-radius:8px; padding:5px 8px; font:inherit; outline:none; box-shadow:none; background:#fff
-    }
+    .field input,.field select,.field textarea{ border:1px solid var(--border); border-radius:8px; padding:5px 8px; font:inherit; outline:none; box-shadow:none; background:#fff }
     .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--border); box-shadow:none; outline:none}
     .input-row{display:flex;align-items:center;gap:6px}
 
     /* ====== Derecha: tabla responsive ====== */
-    .right{
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-      min-width:0;   /* << clave */
-    }
-    .list-viewport{
-      flex:1;
-      min-height:0;
-      min-width:0;   /* << clave */
-      display:flex;
-      flex-direction:column;
-    }
-    /* REEMPLAZO 2 — Contenedor de tabla con scroll SOLO interno */
+    .right{ display:flex; flex-direction:column; min-height:0; min-width:0; }
+    .list-viewport{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; }
+
     .table-wrap{
       border:1px solid var(--border);
       border-radius:10px;
       background:#fff;
-      overflow:auto;          /* scroll horizontal/vertical solo aquí */
-      max-width:100%;         /* no permite desbordar el layout */
+      overflow:auto;
+      max-width:100%;
       flex:1;
       min-height:0;
-
-      /* Scrollbars finos */
+      position:relative;               /* necesario para FAB flotante */
       scrollbar-width:thin;
       scrollbar-color:var(--scroll) transparent;
     }
@@ -170,54 +148,78 @@
     .table-wrap::-webkit-scrollbar-thumb{background:var(--scroll);border-radius:6px}
     .table-wrap::-webkit-scrollbar-track{background:transparent}
 
-    /* La tabla se ajusta al contenido: si es ancha => aparece scroll en .table-wrap */
     .table-wrap > table{
-      width:max-content;      /* se expande al contenido real */
-      min-width:100%;         /* pero al menos ocupa el ancho disponible */
+      width:max-content;
+      min-width:100%;
       border-collapse:collapse;
       table-layout:auto;
     }
-
-    /* Celdas: TODO en UNA SOLA LÍNEA (sin cortes), sin romper palabras */
-    .table-wrap th,
-    .table-wrap td{
-      white-space:nowrap !important;
-      word-break:normal !important;
-      overflow-wrap:normal !important;
-      hyphens:none;
-      border-bottom:1px solid #efefef;
-      padding:6px 10px;
-      text-align:left;
-      vertical-align:top;
+    .table-wrap th, .table-wrap td{
+      white-space:nowrap !important; word-break:normal !important; overflow-wrap:normal !important; hyphens:none;
+      border-bottom:1px solid #efefef; padding:6px 10px; text-align:left; vertical-align:top;
     }
 
     /* Cabecera sticky */
-    .table-wrap th{
-      background:#f9fafb;
-      position:sticky;
-      top:0;
-      z-index:1;
-      color:#374151;
-      font-weight:700;
-    }
-    /* ====== Login centrado (compacto) ====== */
-    .auth-wrap{
-      display:grid; place-items:center;
-      min-height:calc(100vh - var(--strip-height) - var(--footer-h) - (var(--wrap-mt) + 16px));
-    }
-    .auth{
-      width:100%; max-width:340px; padding:12px;
-      border:1px solid var(--border); border-radius:12px; background:#fff;
-      box-shadow:0 2px 12px rgba(0,0,0,.05)
-    }
+    .table-wrap th{ background:#f9fafb; position:sticky; top:0; z-index:2; color:#374151; font-weight:700; }
+
+    /* Login */
+    .auth-wrap{ display:grid; place-items:center; min-height:calc(100vh - var(--strip-height) - var(--footer-h) - (var(--wrap-mt) + 16px)); }
+    .auth{ width:100%; max-width:340px; padding:12px; border:1px solid var(--border); border-radius:12px; background:#fff; box-shadow:0 2px 12px rgba(0,0,0,.05) }
     .auth-grid{grid-template-columns:1fr}
 
-    /* Footer */
     footer{text-align:center;color:#808080;padding:10px 0 16px;flex:0 0 auto}
 
-        /* Interacción de filas (opcional, como antes) */
     .table-wrap tbody tr:hover{ background:var(--hover); }
     .table-wrap tbody tr.selected{ background:var(--hover); }
+
+    /* ===== FAB DENTRO DE LA FILA (en cada <tr>) ===== */
+    .table-wrap tbody tr{
+      position: relative;                 /* el <tr> será el contenedor del FAB */
+    }
+
+    /* Botonera flotante pegada a la derecha de la fila */
+    .row-fab{
+      position: absolute;
+      top: 50%;
+      right: 6px;
+      transform: translateY(-50%);
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      padding: 2px;
+      background: rgba(255,255,255,.98);
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,.10);
+      z-index: 5;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .12s ease, transform .12s ease;
+    }
+
+    /* visible cuando la fila está activa/hover */
+    .table-wrap tbody tr:hover .row-fab,
+    .table-wrap tbody tr[data-editing="1"] .row-fab{
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .fab-btn{
+      border: none;
+      background: transparent;
+      padding: 2px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .fab-btn:hover{ background: rgba(0,0,255,.08); }
+
+    /* Íconos pequeños y legibles (puedes ajustar a 14–18px si quieres) */
+    .fab-btn .material-symbols-outlined{
+      font-size: 16px;                    /* <- tamaño del ícono del FAB */
+      line-height: 1;
+      vertical-align: -2px;
+    }
+
   </style>
 </head>
 <body>
@@ -368,8 +370,14 @@
     const T_BIENES    = "proveedores_bienes";
     const T_SERVICIOS = "proveedores_servicios";
 
+    const TABLES = {
+      personas : { table:T_PERSONAS,  cols:["nombres","dni","celular","ruc","direccion","cuenta","banco"] },
+      bienes   : { table:T_BIENES,    cols:["nombre","empresa","ruc","celular","provee"] },
+      servicios: { table:T_SERVICIOS, cols:["nombre","empresa","ruc","celular","servicio"] },
+    };
+
     // (Opcional) Restringir correos por dominio
-    const ALLOWED_DOMAINS = []; // ej.: ['nether.com.pe','nether-sac.com']
+    const ALLOWED_DOMAINS = [];
     function isAllowedEmail(email){
       if(!ALLOWED_DOMAINS.length) return true;
       const domain = email.split('@')[1]?.toLowerCase();
@@ -436,7 +444,7 @@
       $("#togglePass span").textContent = showing ? "visibility" : "visibility_off";
     });
 
-    // ===== Login con Enter (submit del form) =====
+    // ===== Login =====
     async function doLogin(){
       const email = $("#auth-email").value.trim();
       const pass  = $("#auth-pass").value.trim();
@@ -453,12 +461,7 @@
       initTicker();
       await fetchAll(); render();
     }
-
-    // Submit del formulario (Enter o click en Ingresar)
-    $("#auth-form").addEventListener("submit", async (e)=>{
-      e.preventDefault();
-      await doLogin();
-    });
+    $("#auth-form").addEventListener("submit", async (e)=>{ e.preventDefault(); await doLogin(); });
 
     // ===== Cerrar sesión =====
     $("#btnSignOut").addEventListener("click", async () => {
@@ -487,7 +490,6 @@
       $("#sec-persona").style.display = which==="persona" ? "block" : "none";
       $("#sec-bien").style.display    = which==="bien"    ? "block" : "none";
       $("#sec-serv").style.display    = which==="serv"    ? "block" : "none";
-      // Evita “saltos” en responsive: scroll suave sólo si queda fuera de vista
       document.querySelector('.left')?.scrollIntoView({ behavior:"smooth", block:"nearest" });
     }
 
@@ -563,6 +565,62 @@
       return false;
     }
 
+    function tableWrap(innerHTML){ return `<div class="table-wrap">${innerHTML}</div>`; }
+
+    /* === Tablas SIN columna Acciones === */
+    function tablePersonas(rows){
+      if(!rows.length) return '<div class="empty">Sin registros.</div>';
+      let html = '<table><thead><tr>'+
+        '<th>Nombres</th><th>DNI</th><th>Celular</th><th>RUC</th><th>Dirección</th><th>Cuenta</th><th>Banco</th>'+
+      '</tr></thead><tbody>';
+      html += rows.map(r=>`
+        <tr data-type="personas" data-id="${r.id}">
+          <td>${esc(r.nombres)}</td>
+          <td>${esc(r.dni||"")}</td>
+          <td>${esc(r.celular||"")}</td>
+          <td>${esc(r.ruc||"")}</td>
+          <td>${esc(r.direccion||"")}</td>
+          <td>${esc(r.cuenta||"")}</td>
+          <td>${esc(r.banco||"")}</td>
+        </tr>`).join('');
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function tableBienes(rows){
+      if(!rows.length) return '<div class="empty">Sin registros.</div>';
+      let html = '<table><thead><tr>'+
+        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>¿Qué provee?</th>'+
+      '</tr></thead><tbody>';
+      html += rows.map(r=>`
+        <tr data-type="bienes" data-id="${r.id}">
+          <td>${esc(r.nombre)}</td>
+          <td>${esc(r.empresa||"")}</td>
+          <td>${esc(r.ruc||"")}</td>
+          <td>${esc(r.celular||"")}</td>
+          <td>${esc(r.provee||"")}</td>
+        </tr>`).join('');
+      html += '</tbody></table>';
+      return html;
+    }
+
+    function tableServicios(rows){
+      if(!rows.length) return '<div class="empty">Sin registros.</div>';
+      let html = '<table><thead><tr>'+
+        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>Servicio</th>'+
+      '</tr></thead><tbody>';
+      html += rows.map(r=>`
+        <tr data-type="servicios" data-id="${r.id}">
+          <td>${esc(r.nombre)}</td>
+          <td>${esc(r.empresa||"")}</td>
+          <td>${esc(r.ruc||"")}</td>
+          <td>${esc(r.celular||"")}</td>
+          <td>${esc(r.servicio||"")}</td>
+        </tr>`).join('');
+      html += '</tbody></table>';
+      return html;
+    }
+
     function render(){
       $("#list-title").textContent =
         activeTab==="todo" ? "Resultados" :
@@ -582,63 +640,12 @@
       $("#list-servicios").style.display= (activeTab==="todo" || activeTab==="servicios")? "block" : "none";
     }
 
-    function tableWrap(innerHTML){ return `<div class="table-wrap">${innerHTML}</div>`; }
-
-    function tablePersonas(rows){
-      if(!rows.length) return '<div class="empty">Sin registros.</div>';
-      let html = '<table><thead><tr>'+
-        '<th>Nombres</th><th>DNI</th><th>Celular</th><th>RUC</th><th>Dirección</th><th>Cuenta</th><th>Banco</th>'+
-      '</tr></thead><tbody>';
-      html += rows.map(r=>'<tr>'+
-        `<td>${esc(r.nombres)}</td>`+
-        `<td>${esc(r.dni||"")}</td>`+
-        `<td>${esc(r.celular||"")}</td>`+
-        `<td>${esc(r.ruc||"")}</td>`+
-        `<td>${esc(r.direccion||"")}</td>`+
-        `<td>${esc(r.cuenta||"")}</td>`+
-        `<td>${esc(r.banco||"")}</td>`+
-      '</tr>').join('');
-      html += '</tbody></table>';
-      return html;
-    }
-
-    function tableBienes(rows){
-      if(!rows.length) return '<div class="empty">Sin registros.</div>';
-      let html = '<table><thead><tr>'+
-        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>¿Qué provee?</th>'+
-      '</tr></thead><tbody>';
-      html += rows.map(r=>'<tr>'+
-        `<td>${esc(r.nombre)}</td>`+
-        `<td>${esc(r.empresa||"")}</td>`+
-        `<td>${esc(r.ruc||"")}</td>`+
-        `<td>${esc(r.celular||"")}</td>`+
-        `<td>${esc(r.provee||"")}</td>`+
-      '</tr>').join('');
-      html += '</tbody></table>';
-      return html;
-    }
-
-    function tableServicios(rows){
-      if(!rows.length) return '<div class="empty">Sin registros.</div>';
-      let html = '<table><thead><tr>'+
-        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>Servicio</th>'+
-      '</tr></thead><tbody>';
-      html += rows.map(r=>'<tr>'+
-        `<td>${esc(r.nombre)}</td>`+
-        `<td>${esc(r.empresa||"")}</td>`+
-        `<td>${esc(r.ruc||"")}</td>`+
-        `<td>${esc(r.celular||"")}</td>`+
-        `<td>${esc(r.servicio||"")}</td>`+
-      '</tr>').join('');
-      html += '</tbody></table>';
-      return html;
-    }
-
     function esc(s){
       return (s==null ? "" : String(s)).replace(/[&<>"']/g, c => (
-        {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]
+        {"&":"&amp;","<":"&lt;","&gt;":">&gt;","\"":"&quot;","'":"&#39;"}[c]
       ));
     }
+    function escAttr(s){ return (s==null ? "" : String(s)).replace(/"/g,'&quot;'); }
 
     // Buscar
     $("#q").addEventListener("input", (e)=>{ searchTerm = e.target.value; render(); });
@@ -676,7 +683,7 @@
       return out;
     }
 
-    // Selección de filas (persistente: 1 a la vez, ESC limpia)
+    // Selección de filas
     $("#lists").addEventListener("click", (e)=>{
       const tr = e.target.closest("tr");
       if(!tr) return;
@@ -684,8 +691,159 @@
       tr.classList.add("selected");
     });
 
-    // ===== ESC: limpiar/cancelar en cualquier parte =====
+    /* ===== FAB flotante DENTRO de la fila (sin columna extra) ===== */
+    function ensureFabInRow(tr){
+      let fab = tr.querySelector('.row-fab');
+      if(!fab){
+        fab = document.createElement('div');
+        fab.className = 'row-fab';
+        fab.innerHTML = `
+          <button class="fab-btn fab-edit" title="Editar">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button class="fab-btn fab-del" title="Eliminar">
+            <span class="material-symbols-outlined">delete</span>
+          </button>`;
+        tr.appendChild(fab);
+      }
+      return fab;
+    }
+
+    function setFabMode(fab, mode){
+      if(mode === 'edit'){
+        fab.innerHTML = `
+          <button class="fab-btn fab-save" title="Guardar">
+            <span class="material-symbols-outlined">done</span>
+          </button>
+          <button class="fab-btn fab-cancel" title="Cancelar">
+            <span class="material-symbols-outlined">close</span>
+          </button>`;
+      } else {
+        fab.innerHTML = `
+          <button class="fab-btn fab-edit" title="Editar">
+            <span class="material-symbols-outlined">edit</span>
+          </button>
+          <button class="fab-btn fab-del" title="Eliminar">
+            <span class="material-symbols-outlined">delete</span>
+          </button>`;
+      }
+    }
+
+    /* Mostrar FAB cuando entras a una fila; oculto al salir */
+    const listsEl = document.getElementById('lists');
+
+    listsEl.addEventListener('mouseenter', (e)=>{
+      const tr = e.target.closest('tbody tr'); if(!tr) return;
+      const fab = ensureFabInRow(tr);
+      setFabMode(fab, tr.dataset.editing === '1' ? 'edit' : 'view');
+    }, true);
+
+    listsEl.addEventListener('mouseleave', (e)=>{
+      const tr = e.target.closest('tbody tr'); if(!tr) return;
+      const fab = tr.querySelector('.row-fab'); if(!fab) return;
+      // se oculta por CSS al salir de la fila (opacity 0), no hace falta más
+    }, true);
+
+    /* Clicks del FAB dentro de la fila */
+    document.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.fab-edit,.fab-del,.fab-save,.fab-cancel');
+      if(!btn) return;
+
+      const tr = btn.closest('tr');                 // FAB está dentro del <tr>
+      if(!tr) return;
+      const type = tr.dataset.type;
+      const id   = tr.dataset.id;
+      const fab  = tr.querySelector('.row-fab');
+
+      if(btn.classList.contains('fab-edit')){
+        enterEdit(tr, type, id);
+        setFabMode(fab, 'edit');
+      } else if(btn.classList.contains('fab-del')){
+        await doDelete(type, id);
+        // al re-render se recrea el FAB automáticamente
+      } else if(btn.classList.contains('fab-save')){
+        await doSave(tr, type, id);
+        // tras guardar, se re-renderiza; si no re-renderizas aquí, vuelve a modo vista:
+        // setFabMode(fab, 'view');
+      } else if(btn.classList.contains('fab-cancel')){
+        render(); // cancela edición y re-renderiza
+      }
+    });
+
+
+    // clicks del FAB
+    document.addEventListener('click', async (e)=>{
+      const btn = e.target.closest('.fab-edit,.fab-del,.fab-save,.fab-cancel');
+      if(!btn) return;
+      const fab  = btn.closest('.row-fab');
+      const wrap = fab.parentElement;
+      const id   = fab.dataset.targetId;
+      const type = fab.dataset.targetType;
+      const tr   = wrap.querySelector(`tr[data-type="${type}"][data-id="${CSS.escape(id)}"]`);
+      if(!tr) return;
+
+      if(btn.classList.contains('fab-edit')){
+        enterEdit(tr, type, id);
+        fab.innerHTML = `
+          <button class="fab-btn fab-save" title="Guardar"><span class="material-symbols-outlined">done</span></button>
+          <button class="fab-btn fab-cancel" title="Cancelar"><span class="material-symbols-outlined">close</span></button>`;
+        placeFab(fab, wrap, tr);
+      }else if(btn.classList.contains('fab-del')){
+        await doDelete(type, id);
+        hideFab(fab);
+      }else if(btn.classList.contains('fab-save')){
+        await doSave(tr, type, id);
+        hideFab(fab);
+      }else if(btn.classList.contains('fab-cancel')){
+        render();
+        hideFab(fab);
+      }
+    });
+
+    /* edición inline sin columna */
+    function enterEdit(tr, type, id){
+      const cfg = TABLES[type]; if(!cfg) return;
+      tr.dataset.editing = "1";
+      const inputs = [];
+      cfg.cols.forEach((field, i)=>{
+        const td = tr.children[i];
+        const current = td.textContent;
+        td.innerHTML = `<input class="edit-input" data-field="${field}" value="${escAttr(current)}" />`;
+        inputs.push(td.firstElementChild);
+      });
+      inputs.forEach(inp=>{
+        inp.addEventListener("keydown", async (ev)=>{
+          if(ev.key==="Enter"){ ev.preventDefault(); await doSave(tr, type, id); }
+          if(ev.key==="Escape"){ ev.preventDefault(); render(); }
+        });
+      });
+      inputs[0]?.focus();
+    }
+
+    async function doSave(tr, type, id){
+      const cfg = TABLES[type]; if(!cfg) return;
+      const payload = {};
+      cfg.cols.forEach((field)=>{
+        const val = tr.querySelector(`input[data-field="${field}"]`)?.value ?? "";
+        payload[field] = val.trim();
+      });
+      const { error } = await supabase.from(cfg.table).update(payload).eq("id", id);
+      if(error){ alert("Error al guardar: " + error.message); return; }
+      await fetchAll(); render();
+    }
+
+    async function doDelete(type, id){
+      const cfg = TABLES[type]; if(!cfg) return;
+      if(!confirm("¿Borrar este registro?")) return;
+      const { error } = await supabase.from(cfg.table).delete().eq("id", id);
+      if(error){ alert("Error al borrar: " + error.message); return; }
+      await fetchAll(); render();
+    }
+
+    // ===== ESC global =====
     function escReset(){
+      const editing = document.querySelector('tr[data-editing="1"]');
+      if(editing){ render(); return; }
       $$("#lists tr.selected").forEach(tr=>tr.classList.remove("selected"));
       ["persona","bien","serv"].forEach(id=>{
         const sec = document.getElementById("sec-"+id);
@@ -700,12 +858,8 @@
         const m = document.getElementById(id); if(m) m.textContent="";
       });
     }
-
     document.addEventListener("keydown",(e)=>{
-      if(e.key==="Escape"){
-        e.preventDefault();
-        escReset();
-      }
+      if(e.key==="Escape"){ e.preventDefault(); escReset(); }
     });
 
     // Go!
