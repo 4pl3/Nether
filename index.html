@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nether S.A.C. — Base de Datos</title>
+
+  <!-- NO CACHÉ -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+  <!-- Libs -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root{
+      --font-family-base:"Arial-BoldMT",Arial,Helvetica,sans-serif;
+      --font-size-base:11px;
+      --strip-height:22px;
+      --strip-speed:26s;
+      --brand:#0000ee;
+      --border:#c6c6c6;
+      --bg:#ffffff;
+      --accent:#1e40af;
+      --accent-2:#eef2ff;
+      --danger:#c53030;
+      --muted:#777;
+      --ok:#0d8a4e;
+    }
+
+    html,body{height:100%;margin:0}
+    body{
+      font-family:var(--font-family-base);
+      font-size:var(--font-size-base);
+      display:flex;flex-direction:column;background:var(--bg);
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility; font-kerning:normal;
+      overflow-x:hidden;
+    }
+
+    /* Ticker superior */
+    .moving-strip{
+      width:100%;height:var(--strip-height);
+      background:linear-gradient(to bottom,#e9e9e98c 0%,#ffffff 100%);
+      overflow:hidden;position:relative;flex:0 0 var(--strip-height);
+    }
+    .scroll-text{
+      position:absolute;top:0;left:0;white-space:nowrap;display:inline-block;
+      padding:0 .75rem;color:var(--brand);line-height:var(--strip-height);
+      will-change:transform;visibility:hidden;transform:translateX(var(--start,0px));
+      animation:marqueePx var(--strip-speed) linear infinite;
+    }
+    @keyframes marqueePx{from{transform:translateX(var(--start));}to{transform:translateX(var(--end));}}
+
+    /* ====== Layout principal ====== */
+    .container{
+      flex:1 1 auto;min-height:0;
+      padding:10px 20px 20px;
+      box-sizing:border-box;display:grid;
+      grid-template-columns: 320px 1fr 280px;
+      gap:10px;width:100%;
+    }
+    @media (max-width:1100px){ .container{grid-template-columns: 320px 1fr;} .right-rail{grid-column:1/-1} }
+    @media (max-width:760px){ .container{grid-template-columns: 1fr;} }
+
+    .panel{border:1px solid var(--border);border-radius:8px;background:#fff;padding:10px;}
+    .panel h4{margin:0 0 6px;font-size:11px}
+    .panel .muted{color:var(--muted)}
+
+    .sidebar{display:flex;flex-direction:column;gap:8px;align-items:flex-start}
+
+    .right-rail{display:block}
+    .rail-inner{position:sticky; top:10px;}
+    .card{background:#fff; border:1px solid var(--border); border-radius:8px; padding:10px;}
+
+    /* ====== App centro ====== */
+    .app{border:1px solid var(--border);border-radius:8px;background:#fff;padding:12px;min-height:420px}
+    .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .search{flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+    .search input{border:none;outline:none;flex:1;font:inherit}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:pointer;background:#f8f8f8}
+    .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
+    .btn{border:1px solid var(--border);border-radius:8px;background:#f7f8ff;padding:6px 10px;cursor:pointer}
+    .btn:hover{background:#eef2ff}
+    .btn.danger{background:#fff0f0;border-color:#f3c7c7}
+    .btn.primary{background:var(--accent-2);border-color:#c3d0ff}
+    .btn.full{width:100%}
+    .grid{display:grid;gap:8px}
+    .cols-2{grid-template-columns:1fr 1fr}
+    .cols-3{grid-template-columns:repeat(3,1fr)}
+    .cols-4{grid-template-columns:repeat(4,1fr)}
+    @media(max-width:760px){ .cols-2,.cols-3,.cols-4{grid-template-columns:1fr} }
+    label{font-weight:700}
+    .field{display:flex;flex-direction:column;gap:4px}
+    .field input,.field select,.field textarea{
+      border:1px solid var(--border); border-radius:6px; padding:6px; font:inherit;
+    }
+    .section{margin-top:10px}
+    .section h3{margin:0 0 6px;font-size:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #ececec;padding:6px 8px;text-align:left}
+    th{background:#f7f7f7}
+    .empty{color:var(--muted);font-style:italic}
+    .row-actions{display:flex;gap:6px}
+    .status{font-size:10px;color:var(--muted)}
+    .ok{color:var(--ok)}
+    .error{color:var(--danger)}
+
+    .divider{height:1px;background:#eee;margin:8px 0}
+
+    /* Auth box */
+    .auth{max-width:420px;margin:30px auto;padding:16px;border:1px solid var(--border);border-radius:8px;background:#fff}
+    .auth h2{margin:0 0 10px;font-size:14px}
+    .auth .hint{color:var(--muted);font-size:10px}
+
+    /* Font face pedido */
+    @font-face{font-family:"Arial-BoldMT";src:local("Arial");font-weight:400;font-style:normal;font-display:swap}
+    @font-face{font-family:"Arial-BoldMT";src:local("Arial Bold"),local("Arial");font-weight:700;font-style:normal;font-display:swap}
+  </style>
+</head>
+<body>
+  <!-- Ticker -->
+  <div class="moving-strip">
+    <span class="scroll-text" id="ticker">Nether S.A.C. — Base de datos interna • Personal | Bienes | Servicios • Acceso privado • Lima, Perú</span>
+  </div>
+
+  <div class="container">
+    <!-- IZQUIERDA -->
+    <aside class="sidebar">
+      <div class="panel">
+        <h4>Atajos</h4>
+        <div class="grid">
+          <button class="btn" id="btnNewPersona"><i class="fa-solid fa-user-plus"></i> Nuevo personal</button>
+          <button class="btn" id="btnNewBien"><i class="fa-solid fa-box"></i> Nuevo proveedor (bienes)</button>
+          <button class="btn" id="btnNewServ"><i class="fa-solid fa-briefcase"></i> Nuevo proveedor (servicios)</button>
+          <div class="divider"></div>
+          <button class="btn" id="btnExport"><i class="fa-solid fa-file-export"></i> Exportar CSV</button>
+          <button class="btn danger" id="btnSignOut"><i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar sesión</button>
+        </div>
+        <div class="status" id="status"></div>
+      </div>
+
+      <div class="panel">
+        <h4>Resumen</h4>
+        <div id="counts" class="grid cols-2">
+          <div><b>Personal</b><div id="count-personas">—</div></div>
+          <div><b>Bienes</b><div id="count-bienes">—</div></div>
+          <div><b>Servicios</b><div id="count-servicios">—</div></div>
+          <div><b>Total</b><div id="count-total">—</div></div>
+        </div>
+        <div class="muted" style="margin-top:6px">Se actualiza automáticamente.</div>
+      </div>
+    </aside>
+
+    <!-- CENTRO -->
+    <main>
+      <div class="app">
+        <div class="topbar">
+          <div class="search" style="flex:1">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input id="q" type="search" placeholder="Buscar por nombre, DNI, RUC, celular, empresa, etc."/>
+          </div>
+          <div class="tabs">
+            <button class="tab active" data-tab="todo">Todo</button>
+            <button class="tab" data-tab="personas">Personal</button>
+            <button class="tab" data-tab="bienes">Bienes</button>
+            <button class="tab" data-tab="servicios">Servicios</button>
+          </div>
+        </div>
+
+        <div id="authBox" class="auth" style="display:none">
+          <h2>Acceso privado — Nether S.A.C.</h2>
+          <div class="grid cols-2">
+            <div class="field"><label>Correo</label><input id="auth-email" type="email" placeholder="tu@empresa.com"/></div>
+            <div class="field"><label>Contraseña</label><input id="auth-pass" type="password" placeholder="••••••••"/></div>
+          </div>
+          <div class="grid cols-2" style="margin-top:8px">
+            <button class="btn primary" id="btnLogin"><i class="fa-solid fa-right-to-bracket"></i> Ingresar</button>
+            <button class="btn" id="btnSignup"><i class="fa-solid fa-user-check"></i> Crear usuario</button>
+          </div>
+          <div class="hint" style="margin-top:6px">Los usuarios deben estar autorizados por el administrador.</div>
+          <div id="auth-msg" class="status"></div>
+        </div>
+
+        <div id="appBox" style="display:none">
+          <!-- Formularios -->
+          <div class="section" id="sec-persona" style="display:none">
+            <h3>Nuevo personal</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombres completos</label><input id="p-nombres" /></div>
+              <div class="field"><label>DNI</label><input id="p-dni" /></div>
+              <div class="field"><label>Celular</label><input id="p-celular" /></div>
+              <div class="field"><label>RUC</label><input id="p-ruc" /></div>
+              <div class="field"><label>Dirección</label><input id="p-direccion" /></div>
+              <div class="field"><label>N° Cuenta</label><input id="p-cuenta" /></div>
+              <div class="field"><label>Banco</label><input id="p-banco" /></div>
+            </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-persona"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+              <span id="msg-persona" class="status"></span>
+            </div>
+          </div>
+
+          <div class="section" id="sec-bien" style="display:none">
+            <h3>Nuevo proveedor (bienes)</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombre del proveedor</label><input id="b-nombre" /></div>
+              <div class="field"><label>Empresa</label><input id="b-empresa" /></div>
+              <div class="field"><label>RUC</label><input id="b-ruc" /></div>
+              <div class="field"><label>Celular</label><input id="b-celular" /></div>
+              <div class="field"><label>¿Qué provee?</label><input id="b-provee" /></div>
+            </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-bien"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+              <span id="msg-bien" class="status"></span>
+            </div>
+          </div>
+
+          <div class="section" id="sec-serv" style="display:none">
+            <h3>Nuevo proveedor (servicios)</h3>
+            <div class="grid cols-3">
+              <div class="field"><label>Nombre del proveedor</label><input id="s-nombre" /></div>
+              <div class="field"><label>Empresa</label><input id="s-empresa" /></div>
+              <div class="field"><label>RUC</label><input id="s-ruc" /></div>
+              <div class="field"><label>Celular</label><input id="s-celular" /></div>
+              <div class="field"><label>Servicio que brinda</label><input id="s-servicio" /></div>
+            </div>
+            <div style="margin-top:8px">
+              <button class="btn primary" id="save-serv"><i class="fa-solid fa-floppy-disk"></i> Guardar</button>
+              <span id="msg-serv" class="status"></span>
+            </div>
+          </div>
+
+          <!-- Listados -->
+          <div class="section">
+            <h3 id="list-title">Resultados</h3>
+            <div id="lists">
+              <div class="section" id="list-personas"></div>
+              <div class="section" id="list-bienes"></div>
+              <div class="section" id="list-servicios"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- DERECHA -->
+    <aside class="right-rail">
+      <div class="rail-inner">
+        <div class="card">
+          <h4>Estado de conexión</h4>
+          <div id="conn" class="status">—</div>
+        </div>
+        <div class="card" style="margin-top:8px">
+          <h4>Ayuda rápida</h4>
+          <div class="muted">
+            <ul>
+              <li>Use la barra de búsqueda para filtrar.</li>
+              <li>Click en “Nuevo …” para registrar.</li>
+              <li>“Exportar CSV” descarga todo.</li>
+              <li>Los datos son privados (requiere login).</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="rights" style="text-align:center;font-size:11px;color:#a0a0a0;margin:4px 6px 16px">
+    © <span id="year"></span> Nether S.A.C. — Base de datos interna.
+  </div>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <script>
+    /* ======= CONFIG =======
+       Reemplace con sus valores de Supabase (Proyecto → Settings → API) */
+    const SUPABASE_URL = "https://TU-PROYECTO.supabase.co"; // <<— Ponga su URL
+    const SUPABASE_ANON_KEY = "ey..."; // <<— Ponga su anon key (pública)
+
+    // Tablas
+    const T_PERSONAS  = "personas";
+    const T_BIENES    = "proveedores_bienes";
+    const T_SERVICIOS = "proveedores_servicios";
+
+    // Estado global
+    let activeTab = "todo";
+    let searchTerm = "";
+    let user = null;
+
+    // Supabase client
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // ===== Ticker =====
+    (function initTicker(){
+      const el = document.getElementById('ticker');
+      const wrapW = el.parentElement.clientWidth;
+      const textW = el.getBoundingClientRect().width;
+      const start = wrapW;
+      const end   = -textW - 24;
+      el.style.setProperty('--start', start + 'px');
+      el.style.setProperty('--end',   end   + 'px');
+      el.style.visibility = 'visible';
+    })();
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // ====== Util ======
+    const $ = (sel) => document.querySelector(sel);
+    const msg = (id, text, ok=false) => {
+      const el = document.getElementById(id);
+      el.textContent = text || "";
+      el.className = ok ? "status ok" : "status error";
+    };
+    function esc(s){ return String(s ?? "").replace(/[&<>"']/g, m=>({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;' }[m]));}
+
+    function orFilter(cols, term){
+      const t = term.trim();
+      if (!t) return undefined;
+      const parts = cols.map(c => `${c}.ilike.%${t}%`).join(',');
+      return parts;
+    }
+
+    function toCSV(rows, headers){
+      const escCSV = v => {
+        const s = String(v if not None else "")
+      }
+    }
+
+    // ====== Auth ======
+    async function checkAuth(){
+      const { data: { user: u } } = await supabase.auth.getUser();
+      user = u;
+      if (!user){
+        document.getElementById('authBox').style.display = 'block';
+        document.getElementById('appBox').style.display = 'none';
+      } else {
+        document.getElementById('authBox').style.display = 'none';
+        document.getElementById('appBox').style.display = 'block';
+        $('#status').textContent = `Conectado como ${user.email}`;
+        loadCounts(); loadLists();
+      }
+    }
+
+    supabase.auth.onAuthStateChange((_event, session) => {
+      user = session?.user ?? null;
+      checkAuth();
+    });
+
+    async function login(){
+      const email = $('#auth-email').value.trim();
+      const pass  = $('#auth-pass').value;
+      if (!email || !pass){ msg('auth-msg','Ingrese correo y contraseña'); return; }
+      const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error){ msg('auth-msg','Error: ' + error.message); return; }
+      msg('auth-msg','Listo',true);
+    }
+
+    async function signup(){
+      const email = $('#auth-email').value.trim();
+      const pass  = $('#auth-pass').value;
+      if (!email || !pass){ msg('auth-msg','Ingrese correo y contraseña'); return; }
+      const { error } = await supabase.auth.signUp({ email, password: pass });
+      if (error){ msg('auth-msg','Error: ' + error.message); return; }
+      msg('auth-msg','Usuario creado. Revise su correo para confirmar.', true);
+    }
+
+    async function signOut(){
+      await supabase.auth.signOut();
+    }
+
+    // ====== Eventos UI ======
+    document.getElementById('btnLogin').onclick = login;
+    document.getElementById('btnSignup').onclick = signup;
+    document.getElementById('btnSignOut').onclick = signOut;
+
+    // Botones "nuevo"
+    document.getElementById('btnNewPersona').onclick = () => showForm('sec-persona');
+    document.getElementById('btnNewBien').onclick    = () => showForm('sec-bien');
+    document.getElementById('btnNewServ').onclick    = () => showForm('sec-serv');
+
+    function showForm(id){
+      for (const s of ['sec-persona','sec-bien','sec-serv']){
+        document.getElementById(s).style.display = (s===id?'block':'none');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Tabs
+    for (const el of document.querySelectorAll('.tab')){
+      el.addEventListener('click', () => {
+        document.querySelector('.tab.active')?.classList.remove('active');
+        el.classList.add('active');
+        activeTab = el.dataset.tab;
+        loadLists();
+      });
+    }
+
+    // Buscar
+    document.getElementById('q').addEventListener('input', (e)=>{
+      searchTerm = e.target.value;
+      loadLists();
+    });
+
+    // ====== Guardar registros ======
+    document.getElementById('save-persona').onclick = async ()=>{
+      const row = {
+        nombres_completos: $('#p-nombres').value.trim(),
+        dni: $('#p-dni').value.trim(),
+        celular: $('#p-celular').value.trim(),
+        ruc: $('#p-ruc').value.trim(),
+        direccion: $('#p-direccion').value.trim(),
+        cuenta_bancaria: $('#p-cuenta').value.trim(),
+        banco: $('#p-banco').value.trim(),
+        created_by: user?.id || null
+      };
+      if (!row.nombres_completos || !row.dni){ msg('msg-persona','Nombres y DNI son obligatorios'); return; }
+      const { error } = await supabase.from(T_PERSONAS).insert(row);
+      if (error){ msg('msg-persona','Error: ' + error.message); return; }
+      msg('msg-persona','Guardado ✔', true);
+      clearPersona(); loadCounts(); loadLists();
+    };
+    function clearPersona(){
+      for (const id of ['p-nombres','p-dni','p-celular','p-ruc','p-direccion','p-cuenta','p-banco']){ $('#'+id).value=''; }
+    }
+
+    document.getElementById('save-bien').onclick = async ()=>{
+      const row = {
+        nombre_proveedor: $('#b-nombre').value.trim(),
+        nombre_empresa: $('#b-empresa').value.trim(),
+        ruc: $('#b-ruc').value.trim(),
+        celular: $('#b-celular').value.trim(),
+        provee: $('#b-provee').value.trim(),
+        created_by: user?.id || null
+      };
+      if (!row.nombre_proveedor || !row.ruc){ msg('msg-bien','Nombre y RUC son obligatorios'); return; }
+      const { error } = await supabase.from(T_BIENES).insert(row);
+      if (error){ msg('msg-bien','Error: ' + error.message); return; }
+      msg('msg-bien','Guardado ✔', true);
+      clearBien(); loadCounts(); loadLists();
+    };
+    function clearBien(){
+      for (const id of ['b-nombre','b-empresa','b-ruc','b-celular','b-provee']){ $('#'+id).value=''; }
+    }
+
+    document.getElementById('save-serv').onclick = async ()=>{
+      const row = {
+        nombre_proveedor: $('#s-nombre').value.trim(),
+        nombre_empresa: $('#s-empresa').value.trim(),
+        ruc: $('#s-ruc').value.trim(),
+        celular: $('#s-celular').value.trim(),
+        servicio: $('#s-servicio').value.trim(),
+        created_by: user?.id || null
+      };
+      if (!row.nombre_proveedor || !row.ruc){ msg('msg-serv','Nombre y RUC son obligatorios'); return; }
+      const { error } = await supabase.from(T_SERVICIOS).insert(row);
+      if (error){ msg('msg-serv','Error: ' + error.message); return; }
+      msg('msg-serv','Guardado ✔', true);
+      clearServ(); loadCounts(); loadLists();
+    };
+    function clearServ(){
+      for (const id of ['s-nombre','s-empresa','s-ruc','s-celular','s-servicio']){ $('#'+id).value=''; }
+    }
+
+    // ====== Listado y conteos ======
+    async function loadCounts(){
+      const [a,b,c] = await Promise.all([
+        supabase.from(T_PERSONAS).select('*', { count:'exact', head:true }),
+        supabase.from(T_BIENES).select('*', { count:'exact', head:true }),
+        supabase.from(T_SERVICIOS).select('*', { count:'exact', head:true }),
+      ]);
+      const cp = a.count ?? 0, cb = b.count ?? 0, cs = c.count ?? 0;
+      document.getElementById('count-personas').textContent = cp;
+      document.getElementById('count-bienes').textContent = cb;
+      document.getElementById('count-servicios').textContent = cs;
+      document.getElementById('count-total').textContent = cp + cb + cs;
+    }
+
+    function setConn(ok, text){
+      const el = document.getElementById('conn');
+      el.textContent = text || (ok ? 'Conectado' : 'Sin conexión');
+      el.className = ok ? 'status ok' : 'status error';
+    }
+
+    async function loadLists(){
+      setConn(true, 'Cargando…');
+      try{
+        // Filtrado
+        const fPersonas  = orFilter(['nombres_completos','dni','ruc','celular','banco','direccion','cuenta_bancaria'], searchTerm);
+        const fBienes    = orFilter(['nombre_proveedor','nombre_empresa','ruc','celular','provee'], searchTerm);
+        const fServicios = orFilter(['nombre_proveedor','nombre_empresa','ruc','celular','servicio'], searchTerm);
+
+        // Consultas
+        let qP = supabase.from(T_PERSONAS).select('*').order('created_at', {ascending:false}).limit(200);
+        let qB = supabase.from(T_BIENES).select('*').order('created_at', {ascending:false}).limit(200);
+        let qS = supabase.from(T_SERVICIOS).select('*').order('created_at', {ascending:false}).limit(200);
+        if (fPersonas)  qP = qP.or(fPersonas);
+        if (fBienes)    qB = qB.or(fBienes);
+        if (fServicios) qS = qS.or(fServicios);
+
+        const [rp, rb, rs] = await Promise.all([qP, qB, qS]);
+        if (rp.error || rb.error || rs.error){
+          throw new Error(rp.error?.message || rb.error?.message || rs.error?.message);
+        }
+
+        const showP = (activeTab==='todo' || activeTab==='personas');
+        const showB = (activeTab==='todo' || activeTab==='bienes');
+        const showS = (activeTab==='todo' || activeTab==='servicios');
+
+        document.getElementById('list-title').textContent =
+          (activeTab==='todo' ? 'Resultados (todo)' :
+           activeTab==='personas' ? 'Personal' :
+           activeTab==='bienes' ? 'Proveedores de bienes' : 'Proveedores de servicios');
+
+        renderPersonas(showP ? (rp.data||[]) : []);
+        renderBienes(showB ? (rb.data||[]) : []);
+        renderServicios(showS ? (rs.data||[]) : []);
+
+        setConn(true, 'Conectado');
+      }catch(e){
+        setConn(false, 'Error: ' + e.message);
+      }
+    }
+
+    function renderPersonas(rows){
+      const el = document.getElementById('list-personas');
+      if (!rows.length){ el.innerHTML = activeTab==='personas'||activeTab==='todo' ? '<div class="empty">Sin resultados en Personal</div>' : ''; return; }
+      let html = '<table><thead><tr>' +
+        '<th>Nombres</th><th>DNI</th><th>Celular</th><th>RUC</th><th>Dirección</th><th>Cuenta</th><th>Banco</th><th></th>' +
+        '</tr></thead><tbody>';
+      for (const r of rows){
+        html += `<tr>
+          <td>${esc(r.nombres_completos)}</td>
+          <td>${esc(r.dni)}</td>
+          <td>${esc(r.celular)}</td>
+          <td>${esc(r.ruc)}</td>
+          <td>${esc(r.direccion)}</td>
+          <td>${esc(r.cuenta_bancaria)}</td>
+          <td>${esc(r.banco)}</td>
+          <td class="row-actions">
+            <button class="btn danger" onclick="delRow('${T_PERSONAS}','${r.id}')"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+
+    function renderBienes(rows){
+      const el = document.getElementById('list-bienes');
+      if (!rows.length){ el.innerHTML = activeTab==='bienes'||activeTab==='todo' ? '<div class="empty">Sin resultados en Bienes</div>' : ''; return; }
+      let html = '<table><thead><tr>' +
+        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>Qué provee</th><th></th>' +
+        '</tr></thead><tbody>';
+      for (const r of rows){
+        html += `<tr>
+          <td>${esc(r.nombre_proveedor)}</td>
+          <td>${esc(r.nombre_empresa)}</td>
+          <td>${esc(r.ruc)}</td>
+          <td>${esc(r.celular)}</td>
+          <td>${esc(r.provee)}</td>
+          <td class="row-actions">
+            <button class="btn danger" onclick="delRow('${T_BIENES}','${r.id}')"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+
+    function renderServicios(rows){
+      const el = document.getElementById('list-servicios');
+      if (!rows.length){ el.innerHTML = activeTab==='servicios'||activeTab==='todo' ? '<div class="empty">Sin resultados en Servicios</div>' : ''; return; }
+      let html = '<table><thead><tr>' +
+        '<th>Proveedor</th><th>Empresa</th><th>RUC</th><th>Celular</th><th>Servicio</th><th></th>' +
+        '</tr></thead><tbody>';
+      for (const r of rows){
+        html += `<tr>
+          <td>${esc(r.nombre_proveedor)}</td>
+          <td>${esc(r.nombre_empresa)}</td>
+          <td>${esc(r.ruc)}</td>
+          <td>${esc(r.celular)}</td>
+          <td>${esc(r.servicio)}</td>
+          <td class="row-actions">
+            <button class="btn danger" onclick="delRow('${T_SERVICIOS}','${r.id}')"><i class="fa-solid fa-trash"></i></button>
+          </td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+
+    window.delRow = async (table, id) => {
+      if (!confirm('¿Eliminar este registro?')) return;
+      const { error } = await supabase.from(table).delete().eq('id', id);
+      if (error){ alert('Error: ' + error.message); return; }
+      loadCounts(); loadLists();
+    };
+
+    // ===== Exportar CSV =====
+    function toCSV(rows){
+      if (!rows.length) return "";
+      const headers = Object.keys(rows[0]);
+      const esc = (v) => {
+        if (v === null || v === undefined) return "";
+        const s = String(v);
+        const needs = s.includes(',') || s.includes('"') || s.includes('\n');
+        return needs ? '"' + s.replace(/"/g, '""') + '"' : s;
+      };
+      const lines = [ headers.join(',') ];
+      for (const r of rows){
+        lines.push(headers.map(h => esc(r[h])).join(','));
+      }
+      return lines.join('\n');
+    }
+
+    async function exportCSV(){
+      const [p,b,s] = await Promise.all([
+        supabase.from(T_PERSONAS).select('*'),
+        supabase.from(T_BIENES).select('*'),
+        supabase.from(T_SERVICIOS).select('*'),
+      ]);
+      const now = new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+      const out = [
+        '# Personas',
+        toCSV(p.data||[]),
+        '',
+        '# Proveedores_Bienes',
+        toCSV(b.data||[]),
+        '',
+        '# Proveedores_Servicios',
+        toCSV(s.data||[]),
+      ].join('\n');
+      const blob = new Blob([out], {type:'text/plain;charset=utf-8'});
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `nether-datos-${now}.csv.txt`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+    document.getElementById('btnExport').onclick = exportCSV;
+
+    // Init
+    checkAuth();
+  </script>
+</body>
+</html>
