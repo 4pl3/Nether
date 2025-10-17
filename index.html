@@ -13,15 +13,9 @@
   <!-- Google Icons (Material Symbols) -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet" />
   <style>
-    .material-symbols-outlined {
-      font-variation-settings:
-        'FILL' 0,
-        'wght' 400,
-        'GRAD' 0,
-        'opsz' 24;
-      font-size: 1.25em;
-      line-height: 1;
-      vertical-align: -2px;
+    .material-symbols-outlined{
+      font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
+      font-size: 1.2em; line-height: 1; vertical-align: -2px;
     }
   </style>
 
@@ -31,7 +25,7 @@
   <style>
     :root{
       --font-family-base:"Arial-BoldMT", Inter, Arial, Helvetica, sans-serif;
-      --font-size-base:13px;         /* Tamaño único en toda la app */
+      --font-size-base:12px;   /* un poco más pequeño */
       --strip-height:22px;
       --strip-speed:26s;
       --brand:#0000ee;
@@ -42,6 +36,8 @@
       --danger:#c53030;
       --muted:#777;
       --ok:#0d8a4e;
+      --hover:#fff9c4; /* amarillo claro */
+      --radius:10px;
     }
 
     html,body{height:100%;margin:0}
@@ -53,42 +49,40 @@
       display:flex; flex-direction:column; min-height:100vh;
     }
 
-    /* Ticker superior */
-    .moving-strip{
-      width:100%;height:var(--strip-height);
-      background:linear-gradient(to bottom,#e9e9e98c 0%,#ffffff 100%);
-      overflow:hidden;position:relative; flex:0 0 auto;
-    }
-    .scroll-text{
-      position:absolute;top:0;left:0;white-space:nowrap;display:inline-block;
-      padding:0 .75rem;color:var(--brand);line-height:var(--strip-height);
-      will-change:transform;visibility:hidden;transform:translateX(var(--start,0px));
-      animation:marqueePx var(--strip-speed) linear infinite;
-    }
-    @keyframes marqueePx{from{transform:translateX(var(--start));}to{transform:translateX(var(--end));}}
-
-    /* ====== Layout: UNA SOLA CAJA ====== */
+    /* ====== Layout general ====== */
     .wrap{max-width:1200px;margin:12px auto;padding:0 12px; width:100%; flex:1 0 auto;}
     .app{border:1px solid var(--border);border-radius:12px;background:#fff;padding:14px; box-shadow:0 2px 10px rgba(0,0,0,.04)}
 
-    /* Topbar */
-    .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .search{flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:6px 8px}
+    /* ====== Topbar (dentro del appBox) ====== */
+    .topbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    .search{flex:1;display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:8px;padding:5px 8px}
     .search input{border:none;outline:none;flex:1;font:inherit}
+    .tabs{display:flex;gap:6px;flex-wrap:wrap}
+    .tab{border:1px solid var(--border);border-radius:999px;padding:5px 10px;cursor:pointer;background:#f8f8f8;font:inherit}
+    .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
 
-    /* Botones de formulario (solo nombres) */
-    .btn{border:1px solid var(--border);border-radius:8px;background:#f7f8ff;padding:6px 10px;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:6px}
+    /* ====== Botones ====== */
+    .btn{border:1px solid var(--border);border-radius:8px;background:#f7f8ff;padding:5px 8px;cursor:pointer;font:inherit;display:inline-flex;align-items:center;gap:6px}
     .btn:hover{background:#eef2ff}
     .btn.primary{background:var(--accent-2);border-color:#c3d0ff}
     .btn.danger{background:#fff0f0;border-color:#f3c7c7}
     .btn.ghost{background:#fff}
 
-    /* Tabs */
-    .tabs{display:flex;gap:6px;flex-wrap:wrap}
-    .tab{border:1px solid var(--border);border-radius:999px;padding:6px 10px;cursor:pointer;background:#f8f8f8;font:inherit}
-    .tab.active{background:var(--accent-2);border-color:#c3d0ff;color:#223}
+    /* ====== Main two-column: barra de botones a un lado ====== */
+    .main{display:flex;gap:12px;align-items:flex-start}
+    .side{
+      width:210px; flex:0 0 210px;
+      border:1px solid var(--border); border-radius:var(--radius); padding:10px;
+      display:flex; flex-direction:column; gap:8px; background:#fafafa;
+    }
+    .content{flex:1; min-width:0}
 
-    /* Formularios / campos */
+    @media(max-width:880px){
+      .main{flex-direction:column}
+      .side{width:100%}
+    }
+
+    /* ====== Formularios / campos ====== */
     .grid{display:grid;gap:8px}
     .cols-2{grid-template-columns:1fr 1fr}
     .cols-3{grid-template-columns:repeat(3,1fr)}
@@ -98,56 +92,57 @@
     .field{display:flex;flex-direction:column;gap:4px}
     .field input,.field select,.field textarea{
       border:1px solid var(--border); border-radius:6px; padding:6px; font:inherit;
+      outline:none; box-shadow:none;
     }
+    /* No engrosar al foco */
+    .field input:focus,.field select:focus,.field textarea:focus{border:1px solid var(--border); outline:none; box-shadow:none}
+    .search input:focus{outline:none}
+
     .section{margin-top:10px}
-    h1,h2,h3,h4,h5,h6{margin:0 0 6px;font-size:var(--font-size-base);font-weight:700} /* mismo tamaño */
+    h1,h2,h3,h4,h5,h6{margin:0 0 6px;font-size:var(--font-size-base);font-weight:700}
     .muted{color:var(--muted)}
     .status{font-size:var(--font-size-base);color:var(--muted)}
     .ok{color:var(--ok)}
     .error{color:var(--danger)}
 
-    /* Tabla */
+    /* ====== Tabla ====== */
     table{width:100%;border-collapse:collapse}
     th,td{border-bottom:1px solid #ececec;padding:6px 8px;text-align:left}
     th{background:#f7f7f7}
-    .row-actions{display:flex;gap:6px}
+    tbody tr:hover{background:var(--hover)}
+    tbody tr.selected{background:var(--hover)}
     .empty{color:var(--muted);font-style:italic}
 
-    /* Auth box */
-    .auth{max-width:520px;margin:16px auto;padding:16px;border:1px solid var(--border);border-radius:8px;background:#fff}
-    .auth .hint{color:var(--muted)}
+    /* ====== Auth box (pantalla inicial) ====== */
+    .auth{
+      max-width:520px;margin:16px auto;padding:16px;border:1px solid var(--border);
+      border-radius:8px;background:#fff
+    }
+
+    /* ====== Ticker (solo visible dentro de sesión) ====== */
+    .moving-strip{
+      width:100%;height:var(--strip-height);
+      background:linear-gradient(to bottom,#e9e9e98c 0%,#ffffff 100%);
+      overflow:hidden;position:relative; flex:0 0 auto; border-radius:8px; margin-bottom:10px;
+    }
+    .scroll-text{
+      position:absolute;top:0;left:0;white-space:nowrap;display:inline-block;
+      padding:0 .75rem;color:var(--brand);line-height:var(--strip-height);
+      will-change:transform;visibility:hidden;transform:translateX(var(--start,0px));
+      animation:marqueePx var(--strip-speed) linear infinite;
+    }
+    @keyframes marqueePx{from{transform:translateX(var(--start));}to{transform:translateX(var(--end));}}
 
     /* Footer */
     footer{ text-align:center; color:#808080; padding:10px 0 16px; flex:0 0 auto;}
   </style>
 </head>
 <body>
-  <!-- Ticker -->
-  <div class="moving-strip">
-    <span class="scroll-text" id="ticker">Nether S.A.C. — Base de datos interna • Personal | Bienes | Servicios • Acceso privado</span>
-  </div>
 
   <div class="wrap">
     <div class="app">
-      <!-- TOP -->
-      <div class="topbar">
-        <div class="search" style="flex:1">
-          <span class="material-symbols-outlined">search</span>
-          <input id="q" type="search" placeholder="Buscar por nombre, DNI, RUC, celular, empresa, etc."/>
-        </div>
 
-        <div class="tabs">
-          <button class="tab active" data-tab="todo">Todo</button>
-          <button class="tab" data-tab="personas">Personal</button>
-          <button class="tab" data-tab="bienes">Bienes</button>
-          <button class="tab" data-tab="servicios">Servicios</button>
-        </div>
-
-        <button class="btn ghost" id="btnExport"><span class="material-symbols-outlined">file_export</span> Exportar CSV</button>
-        <span id="conn" class="status">—</span>
-      </div>
-
-      <!-- ACCESO -->
+      <!-- ====== AUTH SOLO (inicio) ====== -->
       <div id="authBox" class="auth" style="display:none">
         <h3>Acceso privado — Nether S.A.C.</h3>
         <div class="grid cols-2">
@@ -156,80 +151,109 @@
         </div>
         <div class="grid cols-2" style="margin-top:8px">
           <button class="btn primary" id="btnLogin"><span class="material-symbols-outlined">login</span> Ingresar</button>
-          <button class="btn" id="btnSignup"><span class="material-symbols-outlined">person_add</span> Crear usuario</button>
+          <!-- Signup eliminado para evitar registros abiertos -->
         </div>
         <div id="auth-msg" class="status" style="margin-top:6px"></div>
-        <div class="hint" style="margin-top:6px">Nota: el registro y acceso usan Supabase Auth (gratuito).</div>
       </div>
 
-      <!-- APP -->
+      <!-- ====== APP (solo si hay sesión) ====== -->
       <div id="appBox" style="display:none">
-        <!-- BOTONES (solo nombres) -->
-        <div class="section" style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn primary" id="btnPersonal"><span class="material-symbols-outlined">person</span> Personal</button>
-          <button class="btn primary" id="btnBienes"><span class="material-symbols-outlined">inventory_2</span> Bienes</button>
-          <button class="btn primary" id="btnServicios"><span class="material-symbols-outlined">home_repair_service</span> Servicios</button>
-          <button class="btn danger" id="btnSignOut" style="margin-left:auto"><span class="material-symbols-outlined">logout</span> Cerrar sesión</button>
+
+        <!-- Ticker dentro de sesión -->
+        <div class="moving-strip">
+          <span class="scroll-text" id="ticker">Nether S.A.C. — Base de datos interna • Personal | Bienes | Servicios • Acceso privado</span>
         </div>
 
-        <!-- FORMULARIOS (aparecen en la misma cajita) -->
-        <div class="section" id="sec-persona" style="display:none">
-          <h3>Personal</h3>
-          <div class="grid cols-3">
-            <div class="field"><label>Nombres completos</label><input id="p-nombres" /></div>
-            <div class="field"><label>DNI</label><input id="p-dni" /></div>
-            <div class="field"><label>Celular</label><input id="p-celular" /></div>
-            <div class="field"><label>RUC</label><input id="p-ruc" /></div>
-            <div class="field"><label>Dirección</label><input id="p-direccion" /></div>
-            <div class="field"><label>N° Cuenta</label><input id="p-cuenta" /></div>
-            <div class="field"><label>Banco</label><input id="p-banco" /></div>
+        <!-- TOP -->
+        <div class="topbar">
+          <div class="search" style="flex:1">
+            <span class="material-symbols-outlined">search</span>
+            <input id="q" type="search" placeholder="Buscar por nombre, DNI, RUC, celular, empresa, etc."/>
           </div>
-          <div style="margin-top:8px">
-            <button class="btn primary" id="save-persona"><span class="material-symbols-outlined">save</span> Guardar</button>
-            <span id="msg-persona" class="status"></span>
+
+          <div class="tabs">
+            <button class="tab active" data-tab="todo">Todo</button>
+            <button class="tab" data-tab="personas">Personal</button>
+            <button class="tab" data-tab="bienes">Bienes</button>
+            <button class="tab" data-tab="servicios">Servicios</button>
           </div>
+
+          <button class="btn ghost" id="btnExport"><span class="material-symbols-outlined">file_export</span> Exportar CSV</button>
+          <span id="conn" class="status">—</span>
         </div>
 
-        <div class="section" id="sec-bien" style="display:none">
-          <h3>Bienes</h3>
-          <div class="grid cols-3">
-            <div class="field"><label>Nombre del proveedor</label><input id="b-nombre" /></div>
-            <div class="field"><label>Empresa</label><input id="b-empresa" /></div>
-            <div class="field"><label>RUC</label><input id="b-ruc" /></div>
-            <div class="field"><label>Celular</label><input id="b-celular" /></div>
-            <div class="field"><label>¿Qué provee?</label><input id="b-provee" /></div>
-          </div>
-          <div style="margin-top:8px">
-            <button class="btn primary" id="save-bien"><span class="material-symbols-outlined">save</span> Guardar</button>
-            <span id="msg-bien" class="status"></span>
-          </div>
-        </div>
+        <!-- Layout con barra lateral de botones + contenido -->
+        <div class="main">
+          <aside class="side">
+            <button class="btn primary" id="btnPersonal"><span class="material-symbols-outlined">person</span> Personal</button>
+            <button class="btn primary" id="btnBienes"><span class="material-symbols-outlined">inventory_2</span> Bienes</button>
+            <button class="btn primary" id="btnServicios"><span class="material-symbols-outlined">home_repair_service</span> Servicios</button>
+            <hr style="border:none;border-top:1px solid var(--border);margin:6px 0">
+            <button class="btn danger" id="btnSignOut"><span class="material-symbols-outlined">logout</span> Cerrar sesión</button>
+          </aside>
 
-        <div class="section" id="sec-serv" style="display:none">
-          <h3>Servicios</h3>
-          <div class="grid cols-3">
-            <div class="field"><label>Nombre del proveedor</label><input id="s-nombre" /></div>
-            <div class="field"><label>Empresa</label><input id="s-empresa" /></div>
-            <div class="field"><label>RUC</label><input id="s-ruc" /></div>
-            <div class="field"><label>Celular</label><input id="s-celular" /></div>
-            <div class="field"><label>Servicio que brinda</label><input id="s-servicio" /></div>
-          </div>
-          <div style="margin-top:8px">
-            <button class="btn primary" id="save-serv"><span class="material-symbols-outlined">save</span> Guardar</button>
-            <span id="msg-serv" class="status"></span>
-          </div>
-        </div>
+          <section class="content">
+            <!-- FORMULARIOS -->
+            <div class="section" id="sec-persona" style="display:none">
+              <h3>Personal</h3>
+              <div class="grid cols-3">
+                <div class="field"><label>Nombres completos</label><input id="p-nombres" /></div>
+                <div class="field"><label>DNI</label><input id="p-dni" /></div>
+                <div class="field"><label>Celular</label><input id="p-celular" /></div>
+                <div class="field"><label>RUC</label><input id="p-ruc" /></div>
+                <div class="field"><label>Dirección</label><input id="p-direccion" /></div>
+                <div class="field"><label>N° Cuenta</label><input id="p-cuenta" /></div>
+                <div class="field"><label>Banco</label><input id="p-banco" /></div>
+              </div>
+              <div style="margin-top:8px">
+                <button class="btn primary" id="save-persona"><span class="material-symbols-outlined">save</span> Guardar</button>
+                <span id="msg-persona" class="status"></span>
+              </div>
+            </div>
 
-        <!-- LISTADOS -->
-        <div class="section">
-          <h3 id="list-title">Resultados</h3>
-          <div id="lists">
-            <div class="section" id="list-personas"></div>
-            <div class="section" id="list-bienes"></div>
-            <div class="section" id="list-servicios"></div>
-          </div>
+            <div class="section" id="sec-bien" style="display:none">
+              <h3>Bienes</h3>
+              <div class="grid cols-3">
+                <div class="field"><label>Nombre del proveedor</label><input id="b-nombre" /></div>
+                <div class="field"><label>Empresa</label><input id="b-empresa" /></div>
+                <div class="field"><label>RUC</label><input id="b-ruc" /></div>
+                <div class="field"><label>Celular</label><input id="b-celular" /></div>
+                <div class="field"><label>¿Qué provee?</label><input id="b-provee" /></div>
+              </div>
+              <div style="margin-top:8px">
+                <button class="btn primary" id="save-bien"><span class="material-symbols-outlined">save</span> Guardar</button>
+                <span id="msg-bien" class="status"></span>
+              </div>
+            </div>
+
+            <div class="section" id="sec-serv" style="display:none">
+              <h3>Servicios</h3>
+              <div class="grid cols-3">
+                <div class="field"><label>Nombre del proveedor</label><input id="s-nombre" /></div>
+                <div class="field"><label>Empresa</label><input id="s-empresa" /></div>
+                <div class="field"><label>RUC</label><input id="s-ruc" /></div>
+                <div class="field"><label>Celular</label><input id="s-celular" /></div>
+                <div class="field"><label>Servicio que brinda</label><input id="s-servicio" /></div>
+              </div>
+              <div style="margin-top:8px">
+                <button class="btn primary" id="save-serv"><span class="material-symbols-outlined">save</span> Guardar</button>
+                <span id="msg-serv" class="status"></span>
+              </div>
+            </div>
+
+            <!-- LISTADOS -->
+            <div class="section">
+              <h3 id="list-title">Resultados</h3>
+              <div id="lists">
+                <div class="section" id="list-personas"></div>
+                <div class="section" id="list-bienes"></div>
+                <div class="section" id="list-servicios"></div>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -239,26 +263,28 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script>
-    /* ======= CONFIG =======
-       Reemplaza con tus valores de Supabase (Proyecto → Settings → API) */
-    const SUPABASE_URL = "https://jvmecjufprxspcltwimm.supabase.co";   // <<— URL de tu proyecto
-    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bWVjanVmcHJ4c3BjbHR3aW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NzI0NTcsImV4cCI6MjA3NjI0ODQ1N30.nC7cax8JTH9EVyTHpD32ObCxsPgfyRBucz6wbAGviL0";                         // <<— anon key (pública)
+    /* ======= CONFIG ======= */
+    const SUPABASE_URL = "https://jvmecjufprxspcltwimm.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imp2bWVjanVmcHJ4c3BjbHR3aW1tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjA2NzI0NTcsImV4cCI6MjA3NjI0ODQ1N30.nC7cax8JTH9EVyTHpD32ObCxsPgfyRBucz6wbAGviL0";
 
-    // Tablas
     const T_PERSONAS  = "personas";
     const T_BIENES    = "proveedores_bienes";
     const T_SERVICIOS = "proveedores_servicios";
 
-    // Estado
+    // Opcional: restringir login por dominio (edita esta lista; si la dejas vacía, no restringe)
+    const ALLOWED_DOMAINS = []; // Ej.: ['nether.com.pe','nether-sac.com']
+    function isAllowedEmail(email){
+      if(!ALLOWED_DOMAINS.length) return true;
+      const domain = email.split('@')[1]?.toLowerCase();
+      return ALLOWED_DOMAINS.includes(domain);
+    }
+
     let activeTab = "todo";
     let searchTerm = "";
     let user = null;
     let cache = { personas: [], bienes: [], servicios: [] };
 
-    // Supabase client
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    // ===== Helpers =====
     const $ = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
@@ -269,9 +295,10 @@
       el.className = "status " + (ok ? "ok" : "error");
     }
 
-    // ===== Ticker =====
-    (function initTicker(){
+    // ===== Ticker (solo cuando app visible) =====
+    function initTicker(){
       const el = document.getElementById('ticker');
+      if(!el) return;
       function recalc(){
         const wrapW = el.parentElement.clientWidth;
         const textW = el.getBoundingClientRect().width;
@@ -279,9 +306,9 @@
         el.style.setProperty('--end', -textW + 'px');
         el.style.visibility = 'visible';
       }
-      setTimeout(recalc, 100); // después de cargar fuentes
+      setTimeout(recalc, 100);
       window.addEventListener('resize', recalc);
-    })();
+    }
 
     // ===== Auth & App init =====
     async function init(){
@@ -292,6 +319,7 @@
       toggleApp(!!user);
 
       if(user){
+        initTicker();
         await fetchAll();
         render();
       }
@@ -302,31 +330,26 @@
       $("#appBox").style.display  = showApp ? "block" : "none";
     }
 
-    // Login
+    // ===== Login (sin signup público) =====
     $("#btnLogin").addEventListener("click", async () => {
       const email = $("#auth-email").value.trim();
       const pass  = $("#auth-pass").value.trim();
+      if(!isAllowedEmail(email)){
+        $("#auth-msg").textContent = "Acceso restringido. Correo no autorizado.";
+        return;
+      }
       $("#auth-msg").textContent = "Ingresando...";
       const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
       if(error){ $("#auth-msg").textContent = "Error: " + error.message; return; }
       user = data.user;
       $("#auth-msg").textContent = "Listo.";
       toggleApp(true);
+      initTicker();
       await fetchAll();
       render();
     });
 
-    // Signup
-    $("#btnSignup").addEventListener("click", async () => {
-      const email = $("#auth-email").value.trim();
-      const pass  = $("#auth-pass").value.trim();
-      $("#auth-msg").textContent = "Creando usuario...";
-      const { data, error } = await supabase.auth.signUp({ email, password: pass });
-      if(error){ $("#auth-msg").textContent = "Error: " + error.message; return; }
-      $("#auth-msg").textContent = "Usuario creado. Revisa tu correo si te piden confirmación.";
-    });
-
-    // SignOut
+    // ===== Cerrar sesión =====
     $("#btnSignOut").addEventListener("click", async () => {
       await supabase.auth.signOut();
       user = null;
@@ -334,7 +357,7 @@
       $("#auth-msg").textContent = "Sesión cerrada.";
     });
 
-    // ===== Tabs (Todo / Personas / Bienes / Servicios) =====
+    // ===== Tabs =====
     $$(".tab").forEach(btn => {
       btn.addEventListener("click", () => {
         $$(".tab").forEach(x=>x.classList.remove("active"));
@@ -344,7 +367,7 @@
       });
     });
 
-    // ===== Botones para mostrar formularios =====
+    // ===== Mostrar formularios =====
     $("#btnPersonal").addEventListener("click", () => showForm("persona"));
     $("#btnBienes").addEventListener("click", () => showForm("bien"));
     $("#btnServicios").addEventListener("click", () => showForm("serv"));
@@ -410,19 +433,11 @@
 
     // ===== Fetch & Render =====
     async function fetchAll(){
-      // Personas
-      let { data: personas } = await supabase
-        .from(T_PERSONAS).select("*").order("created_at", { ascending:false });
+      let { data: personas } = await supabase.from(T_PERSONAS).select("*").order("created_at",{ascending:false});
       cache.personas = personas || [];
-
-      // Bienes
-      let { data: bienes } = await supabase
-        .from(T_BIENES).select("*").order("created_at", { ascending:false });
+      let { data: bienes } = await supabase.from(T_BIENES).select("*").order("created_at",{ascending:false});
       cache.bienes = bienes || [];
-
-      // Servicios
-      let { data: servicios } = await supabase
-        .from(T_SERVICIOS).select("*").order("created_at", { ascending:false });
+      let { data: servicios } = await supabase.from(T_SERVICIOS).select("*").order("created_at",{ascending:false});
       cache.servicios = servicios || [];
     }
 
@@ -437,28 +452,25 @@
     }
 
     function render(){
-      $("#list-title").textContent = 
+      $("#list-title").textContent =
         activeTab==="todo" ? "Resultados" :
         activeTab==="personas" ? "Listado: Personal" :
         activeTab==="bienes" ? "Listado: Bienes" : "Listado: Servicios";
 
-      // Filtrado
       const personas = cache.personas.filter(r => matchesSearch(r, ["nombres","dni","celular","ruc","direccion","cuenta","banco"]));
       const bienes   = cache.bienes.filter(r   => matchesSearch(r, ["nombre","empresa","ruc","celular","provee"]));
       const servs    = cache.servicios.filter(r=> matchesSearch(r, ["nombre","empresa","ruc","celular","servicio"]));
 
-      // Render tablas
-      $("#list-personas").innerHTML = tablePersonas(personas, activeTab!=="todo");
-      $("#list-bienes").innerHTML   = tableBienes(bienes, activeTab!=="todo");
-      $("#list-servicios").innerHTML= tableServicios(servs, activeTab!=="todo");
+      $("#list-personas").innerHTML = tablePersonas(personas);
+      $("#list-bienes").innerHTML   = tableBienes(bienes);
+      $("#list-servicios").innerHTML= tableServicios(servs);
 
-      // Mostrar/ocultar por tab
       $("#list-personas").style.display = (activeTab==="todo" || activeTab==="personas") ? "block" : "none";
       $("#list-bienes").style.display   = (activeTab==="todo" || activeTab==="bienes")   ? "block" : "none";
       $("#list-servicios").style.display= (activeTab==="todo" || activeTab==="servicios")? "block" : "none";
     }
 
-    function tablePersonas(rows, compact){
+    function tablePersonas(rows){
       if(!rows.length) return '<div class="empty">Sin registros.</div>';
       let html = '<table><thead><tr>'+
         '<th>Nombres</th><th>DNI</th><th>Celular</th><th>RUC</th><th>Dirección</th><th>Cuenta</th><th>Banco</th>'+
@@ -528,7 +540,6 @@
       } else if(activeTab==="servicios"){
         rows = cache.servicios.filter(r=>matchesSearch(r,["nombre","empresa","ruc","celular","servicio"]));
       } else {
-        // todo -> concatenado con tipo
         rows = [
           ...cache.personas.map(r=>({tipo:"personal", ...r})),
           ...cache.bienes.map(r=>({tipo:"bien", ...r})),
@@ -555,6 +566,13 @@
       }
       return out;
     }
+
+    // ===== Selección de filas (clic) =====
+    $("#lists").addEventListener("click", (e)=>{
+      const tr = e.target.closest("tr");
+      if(!tr) return;
+      tr.classList.toggle("selected"); // permite varias seleccionadas
+    });
 
     // Go!
     init();
