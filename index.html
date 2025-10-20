@@ -40,7 +40,7 @@
       --hover:#fff9c4;
       --scroll:#bdbdbd;
 
-      --footer-h:34px;
+      --footer-h:0px;
 
       /* Íconos */
       --icon-blue:#335eea;
@@ -84,21 +84,6 @@
       background:var(--bg);
       -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
       display:flex; flex-direction:column; min-height:100vh;
-    }
-
-    footer{
-      margin-top:auto;
-      min-height:var(--footer-h);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:6px 8px;
-      font-weight:400;
-      letter-spacing:.2px;
-      color:#9aa4b2;
-      opacity:.65;
-      user-select:none;
-      text-align:center;
     }
 
     /* ===== Material Symbols ===== */
@@ -302,6 +287,19 @@
       border-bottom:1px solid #efefef;
     }
 
+    /* Solo filas de datos (tbody) en Arial y negro */
+    .table-wrap tbody td{
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+      color:#000 !important;
+      font-weight:400;
+    }
+
+    /* inputs en edición dentro del tbody */
+    .table-wrap tbody td .edit-input{
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+      color:#000 !important;
+    }
+
     .table-wrap thead th{
       position:sticky; top:0; z-index:2;
       background:#f0f0f0; color:#111; font-weight:400;
@@ -316,8 +314,71 @@
     .table-wrap thead th + th{ border-left:1px solid #e6e6e6; }
     .table-wrap tbody td + td{ border-left:1px solid #efefef; }
 
+    /* INVENTARIO: encabezados azules (RGB 0,0,255) */
+    #list-inventario .table-wrap thead th{
+      color: #0000ff !important;
+    }
+
+    /* Inventario: centrar columnas Marca, Cantidad, Precio y Total */
+    #list-inventario .table-wrap td[data-field="marca"],
+    #list-inventario .table-wrap td[data-field="cantidad"],
+    #list-inventario .table-wrap td[data-field="precio_ref"],
+    #list-inventario .table-wrap td[data-field="__total"]{
+      text-align: center;
+      vertical-align: middle;
+      font-variant-numeric: tabular-nums; /* números más alineados */
+    }
+
     .table-wrap tbody tr:hover{ background:var(--hover); }
     .table-wrap tbody tr.selected{ background:var(--hover); }
+
+    /* ===== TOTAL EN INVENTARIO (igual al ENCABEZADO + STICKY + tipografía del título) ===== */
+    .table-wrap tfoot td{
+      position: sticky;          /* siempre visible dentro del scroll */
+      bottom: 0;
+      z-index: 3;                /* por encima de tbody y thead (thead usa 2) */
+      background:#f0f0f0;        /* mismo fondo que thead */
+      border-top:1px solid #e1e1e1; /* misma línea que thead */
+      padding:2px 6px;           /* mismo padding que thead */
+      line-height:1.05;          /* mismo line-height que thead */
+      text-align:center;         /* default general */
+      vertical-align:middle;
+
+      /* Tipografía del título "Base de Datos" */
+      font-weight:400;
+      color:var(--muted);
+    }
+
+    /* Bordes verticales como en thead */
+    .table-wrap tfoot td + td{
+      border-left:1px solid #e6e6e6;
+    }
+
+    /* Detalles semánticos del total */
+    .table-wrap tfoot .tot-label{ /* etiqueta TOTAL GENERAL */
+      text-align:center;
+    }
+    .table-wrap tfoot .tot-valor{ /* número */
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* === OVERRIDE SOLO PARA INVENTARIO (ajuste de Total General) === */
+    /* Etiqueta "Total General" (colspan): derecha y azul */
+    #list-inventario .table-wrap tfoot .tot-label{
+      text-align: right !important;
+      color: #0000ff !important;
+    }
+
+    /* Valor del Total General: CENTRADO, Arial, tamaño de fila y AZUL */
+    #list-inventario .table-wrap tfoot .tot-valor{
+      text-align: center !important;
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+      font-size: var(--font-size-base) !important;
+      font-weight: 400 !important;
+      color: #0000ff !important;
+      font-variant-numeric: tabular-nums;
+      vertical-align: middle; /* por si la celda es más alta */
+    }
 
     .table-wrap td{ position:relative; }
     .cell-ghost{ visibility:hidden; pointer-events:none; white-space:inherit; }
@@ -331,6 +392,15 @@
       font:inherit; font-weight:400 !important;
       box-shadow:none; outline:none;
     }
+
+    /* Inventario (modo edición): centrar texto dentro de los inputs */
+    .table-wrap tr[data-type="inventario"] .edit-input[data-field="marca"],
+    .table-wrap tr[data-type="inventario"] .edit-input[data-field="cantidad"],
+    .table-wrap tr[data-type="inventario"] .edit-input[data-field="precio_ref"],
+    .table-wrap tr[data-type="inventario"] .edit-input[data-field="__total"]{
+      text-align: center;
+    }
+
     .table-wrap tr[data-editing="1"],
     .table-wrap tr[data-editing="1"]:hover{ background:#fff !important; }
     .edit-input:focus{ border-color:transparent; box-shadow:none; outline:none; }
@@ -372,7 +442,7 @@
 
   <!-- Ticker -->
   <div class="moving-strip" id="tickerWrap">
-    <span class="scroll-text" id="ticker">Nether S.A.C. / Base de datos interna</span>
+    <span class="scroll-text" id="ticker">NETHER S.A.C. / R.U.C. : 20613159216</span>
   </div>
 
   <div class="wrap">
@@ -546,8 +616,6 @@
     </div>
   </div>
 
-  <footer>Nether S.A.C.</footer>
-
   <!-- Supabase -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
@@ -583,6 +651,9 @@
     let searchTerm = "";
     let user = null;
     let cache = { personas: [], bienes: [], servicios: [], inventario: [] };
+
+    /* 🔹 Ancla para selección por rango (Shift) */
+    let lastAnchorRow = null;
 
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $  = (sel, root=document) => root.querySelector(sel);
@@ -668,11 +739,12 @@
         }
 
         const thead = table.tHead;
+        const tfoot = table.tFoot;
         const tbody = table.tBodies[0];
         const rows  = tbody ? Array.from(tbody.rows) : [];
         const count = rows.length;
 
-        const threshold = (activeTab === "todo") ? 4 : 22; // 👈 regla solicitada
+        const threshold = (activeTab === "todo") ? 4 : 21; // 👈 regla solicitada
 
         if(count > threshold){
           // Buscar una fila con alto medible
@@ -680,8 +752,11 @@
           let rowH = visibleRow ? visibleRow.getBoundingClientRect().height : 26;
           if(!rowH || rowH === 0) rowH = 26;
 
-          const headH = thead ? thead.getBoundingClientRect().height : 0;
-          const maxH  = Math.ceil(headH + rowH * threshold + 2);
+          const headH = thead ? Math.ceil(thead.getBoundingClientRect().height) : 0;
+          const footH = tfoot ? Math.ceil(tfoot.getBoundingClientRect().height) : 0;
+
+          // Sumamos el alto del tfoot para que nunca tape la última fila
+          const maxH  = Math.ceil(headH + rowH * threshold + footH + 2);
 
           wrap.style.maxHeight = maxH + "px";
           wrap.style.overflowY = "auto";
@@ -691,6 +766,7 @@
         }
       });
     }
+
     window.addEventListener("resize", enforceScrollLimit);
 
     // Realtime
@@ -1081,23 +1157,37 @@
 
     function tableInventario(rows){
       if(!rows.length) return '<div class="empty">Sin registros.</div>';
-      let html = '<table><thead><tr>'+
-        '<th>Producto</th><th>Marca</th><th>Cantidad</th><th>Precio Referencial (S/)</th><th>Total (S/)</th>'+
-      '</tr></thead><tbody>';
+
+      let totalGeneral = 0;
+
+      let html = '<table><thead><tr>'
+        + '<th>Producto</th><th>Marca</th><th>Cantidad</th><th>Precio Referencial (S/)</th><th>Total (S/)</th>'
+        + '</tr></thead><tbody>';
+
       html += rows.map(r=>{
-        const cant = parseFloat(r.cantidad)||0;
-        const prec = parseFloat(r.precio_ref)||0;
+        const cant = Number(r.cantidad) || 0;
+        const prec = Number(r.precio_ref) || 0;
         const tot  = cant * prec;
+        totalGeneral += tot;
         return `
-        <tr data-type="inventario" data-id="${r.id}">
-          <td class="cell" data-field="producto">${esc(r.producto||"")}</td>
-          <td class="cell" data-field="marca">${esc(r.marca||"")}</td>
-          <td class="cell" data-field="cantidad">${esc(cant)}</td>
-          <td class="cell" data-field="precio_ref">${esc(fmtPEN(prec))}</td>
-          <td class="cell" data-field="__total">${esc(fmtPEN(tot))}</td>
-        </tr>`;
+          <tr data-type="inventario" data-id="${r.id}">
+            <td class="cell" data-field="producto">${esc(r.producto||"")}</td>
+            <td class="cell" data-field="marca">${esc(r.marca||"")}</td>
+            <td class="cell" data-field="cantidad">${esc(cant)}</td>
+            <td class="cell" data-field="precio_ref">${esc(fmtPEN(prec))}</td>
+            <td class="cell" data-field="__total">${esc(fmtPEN(tot))}</td>
+          </tr>`;
       }).join('');
-      html += '</tbody></table>';
+
+      html += '</tbody>'
+          +  `<tfoot>
+                <tr class="row-total">
+                  <td class="tot-label" colspan="4">Total General</td>
+                  <td class="tot-valor">${esc(fmtPEN(totalGeneral))}</td>
+                </tr>
+              </tfoot>`
+          +  '</table>';
+
       return html;
     }
 
@@ -1234,19 +1324,85 @@
       hdrActions.classList.add('show');
     }
 
-    // click en filas (CTRL para multiselección)
+    // click en filas (CTRL suma/quita, SHIFT selecciona rango tipo Excel)
     $("#lists").addEventListener("click", (e)=>{
       const tr = e.target.closest("tr");
       if(!tr) return;
 
-      if(e.ctrlKey){
-        tr.classList.toggle("selected");
-      }else{
-        $$("#lists tr.selected").forEach(x=>x.classList.remove("selected"));
-        tr.classList.add("selected");
+      // No seleccionar filas de totales ni filas sin dataset usable
+      if (tr.closest("tfoot") || !tr.dataset || !tr.dataset.type || !tr.dataset.id) {
+        return;
       }
+
+      const isShift = e.shiftKey;
+      const isCtrl  = e.ctrlKey || e.metaKey; // meta para compatibilidad Mac
+
+      if(isShift){
+        // Si el ancla no está en el mismo grupo/tabla, usamos una fila seleccionada del mismo grupo o la actual
+        let anchor = lastAnchorRow;
+        if(!anchor || !sameGroup(anchor, tr)){
+          anchor = getGroupRows(tr).find(r => r.classList.contains("selected")) || tr;
+        }
+        // Ctrl+Shift = agrega el rango al conjunto actual (no limpia)
+        selectRangeBetween(anchor, tr, /*append=*/isCtrl);
+        // El ancla pasa a ser la última clickeada
+        lastAnchorRow = tr;
+      }else if(isCtrl){
+        // Ctrl solo: alterna selección de la fila
+        tr.classList.toggle("selected");
+        lastAnchorRow = tr; // actualizamos ancla al último click
+      }else{
+        // Click simple: limpia y selecciona sólo esta fila
+        clearAllSelection();
+        tr.classList.add("selected");
+        lastAnchorRow = tr;
+      }
+
       updateActionToolbar();
     });
+
+    /* ===== Helpers selección de filas (Shift/Ctrl) ===== */
+    function sameGroup(a, b){
+      return a?.closest('tbody') === b?.closest('tbody');
+    }
+
+    function getGroupRows(tr){
+      const tbody = tr?.closest('tbody');
+      return tbody ? Array.from(tbody.querySelectorAll('tr[data-id]')) : [];
+    }
+
+    function clearAllSelection(){
+      $$("#lists tr.selected").forEach(x=>x.classList.remove("selected"));
+    }
+
+    function selectRangeBetween(anchor, target, append=false){
+      const rows = getGroupRows(target);
+      if(!rows.length){
+        return;
+      }
+
+      // Si no hay ancla o no es del mismo grupo/tabla, hacemos selección simple
+      if(!anchor || !sameGroup(anchor, target)){
+        if(!append) clearAllSelection();
+        target.classList.add("selected");
+        return;
+      }
+
+      const ia = rows.indexOf(anchor);
+      const ib = rows.indexOf(target);
+
+      if(ia === -1 || ib === -1){
+        if(!append) clearAllSelection();
+        target.classList.add("selected");
+        return;
+      }
+
+      const [start, end] = ia <= ib ? [ia, ib] : [ib, ia];
+      if(!append) clearAllSelection();
+      for(let i = start; i <= end; i++){
+        rows[i].classList.add("selected");
+      }
+    }
 
     // acciones de toolbar
     document.addEventListener('click', async (e)=>{
@@ -1409,6 +1565,7 @@
       if(editing){ render(); hideActions(); }
 
       $$("#lists tr.selected").forEach(tr=>tr.classList.remove("selected"));
+      lastAnchorRow = null; // 🔹 resetea el ancla cuando limpias selección
 
       ["persona","bien","serv","inv"].forEach(id=>{
         const sec = document.getElementById("sec-"+id);
