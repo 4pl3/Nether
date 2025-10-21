@@ -971,7 +971,7 @@
       const email = user?.email || "";
       if(email){
         const name = extractUserNameFromEmail(email);
-        box.textContent = "Usuario: " + (name || "—");
+        box.textContent = "usuario: " + (name || "—");
         box.style.display = "block";
       }else{
         box.textContent = "";
