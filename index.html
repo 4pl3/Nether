@@ -66,6 +66,10 @@
       --search-icn-offset: 5px;
       --search-icn-gap: 26px;
 
+      /* 🔹 Espacio y posición del botón X (clear) */
+      --search-clear-gap: 28px;     /* reserva dentro del input */
+      --search-clear-right: 4px;    /* “un poco más a la derecha” del borde */    
+
       /* Empuje de toolbar derecha */
       --hdr-push: 14px;
 
@@ -160,8 +164,11 @@
       font-size:18px; color:#000 !important; pointer-events:none; opacity:.9;
     }
     .search input{
-      border:none; outline:none; flex:1; font:inherit; background:transparent; height:100%; padding:0; line-height:var(--ctl-h); color:#000;
+      border:none; outline:none; flex:1; font:inherit; background:transparent; height:100%;
+      padding:0; padding-right:var(--search-clear-gap);  /* 🔹 reserva espacio para la X */
+      line-height:var(--ctl-h); color:#000;
     }
+
     .search input::placeholder{ color:#000; opacity:.65; }
 
     .tabs{display:flex;gap:6px;flex-wrap:wrap}
@@ -238,9 +245,28 @@
     .right{ display:flex; flex-direction:column; min-height:0; min-width:0; }
     .list-viewport{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; }
     .list-header{ min-height:22px; max-width:100%; margin:0; }
-    .list-header-inner{ display:flex; align-items:center; gap:8px; margin-left:0; margin-right:0; }
+    /* El header alinea sus márgenes a la tabla con syncHeaderToTable(), 
+      y ahora sirve de "marco" para centrar la toolbar dentro. */
+    .list-header-inner{
+      position:relative;                /* <- clave para centrar absoluto */
+      display:flex; align-items:center; gap:8px;
+      margin-left:0; margin-right:0;
+    }
     .list-header-inner h3{ margin:0; }
-    .hdr-actions{ margin-left:auto; display:flex; align-items:center; justify-content:center; gap:8px; min-width:72px; visibility:hidden; opacity:0; transition:opacity .12s ease; margin-right: calc(-1 * var(--hdr-push)); }
+
+    /* Toolbar centrada SIEMPRE respecto al ancho del listado */
+    .hdr-actions{
+      position:absolute;                /* <- centrado absoluto dentro del marco */
+      left:50%; top:50%;
+      transform:translate(-50%,-50%);   /* <- centro exacto */
+      display:flex; align-items:center; justify-content:center;
+      gap:10px;
+      min-width:0;                      /* ya no forzamos ancho mínimo */
+      visibility:hidden; opacity:0; transition:opacity .12s ease;
+      margin:0;                         /* quitamos empujes laterales */
+      pointer-events:auto;
+      z-index:1;                        /* delante del título si coincide */
+    }
     .hdr-actions.show{ visibility:visible; opacity:1; }
     .hdr-actions button{ border:none; background:transparent; padding:0; line-height:1; cursor:pointer; }
     .hdr-actions .material-symbols-outlined{ font-size:var(--row-action-size); vertical-align:-2px; }
@@ -329,8 +355,23 @@
       font-variant-numeric: tabular-nums; /* números más alineados */
     }
 
+    .table-wrap tbody tr{ cursor:pointer; }
     .table-wrap tbody tr:hover{ background:var(--hover); }
     .table-wrap tbody tr.selected{ background:var(--hover); }
+
+    /* Evita que el navegador intente seleccionar texto al hacer clic/arrastrar */
+    .table-wrap tbody{
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      user-select: none;
+    }
+
+    /* Pero permite seleccionar dentro de inputs cuando estés editando */
+    .table-wrap tr[data-editing="1"] .edit-input{
+      -webkit-user-select: text;
+      -moz-user-select: text;
+      user-select: text;
+    }
 
     /* ===== TOTAL EN INVENTARIO (igual al ENCABEZADO + STICKY + tipografía del título) ===== */
     .table-wrap tfoot td{
@@ -381,16 +422,25 @@
     }
 
     .table-wrap td{ position:relative; }
-    .cell-ghost{ visibility:hidden; pointer-events:none; white-space:inherit; }
+    .cell-ghost{
+      /* vuelve a estar en el flujo para mantener la altura de la celda */
+      visibility:hidden;
+      pointer-events:none;
+      white-space:inherit;
+      display:block;
+      min-height:1em; /* ancla mínima de altura */
+    }
     .edit-input{
-      position:absolute; inset:2px; z-index:1;
-      width:calc(100% - 4px); height:calc(100% - 4px);
-      margin:0; padding:3px 6px;
-      border:1px solid transparent;
-      border-radius:4px;
-      background:#fff;
-      font:inherit; font-weight:400 !important;
-      box-shadow:none; outline:none;
+      position:absolute; inset:0; z-index:1;
+      width:100%; height:100%;
+      margin:0; padding:3px 6px;           /* mismo padding que el <td> */
+      box-sizing:border-box;               /* evita desbordes/contracción */
+      border:none !important;
+      background:transparent !important;
+      border-radius:0;
+      font:inherit; font-weight:400 !important; line-height:inherit;
+      box-shadow:none !important; outline:none !important;
+      -webkit-appearance:none; appearance:none;
     }
 
     /* Inventario (modo edición): centrar texto dentro de los inputs */
@@ -401,8 +451,18 @@
       text-align: center;
     }
 
+    /* FILA EN EDICIÓN: anaranjado fuerte translúcido */
     .table-wrap tr[data-editing="1"],
-    .table-wrap tr[data-editing="1"]:hover{ background:#fff !important; }
+    .table-wrap tr[data-editing="1"]:hover{
+      background:rgba(0, 76, 255, 0.22) !important; /* mismo RGB que tu captura, con alpha */
+    }
+
+    /* Input en la fila editando: borde/anuncio naranja */
+    .table-wrap tr[data-editing="1"] .edit-input{
+      border:none !important;
+      background:transparent !important;
+    }
+
     .edit-input:focus{ border-color:transparent; box-shadow:none; outline:none; }
     .edit-input::placeholder{ color:#9ca3af; font-weight:400; }
 
@@ -434,6 +494,45 @@
     /* Más espacio debajo del título 'Base de Datos' */
     .right > .col-title{
       margin-bottom: 12px; /* súbelo a 14px o 16px si lo quieres más separado */
+    }
+
+    /* Títulos sobre cada listado (mismo estilo que "Formulario") */
+    .list-title{
+      /* reusa la tipografía/estilo de .col-title al usar ambas clases en el HTML */
+      margin:10px 0 6px;           /* separación cómoda del listado */
+    }
+
+    /* Opcional: si quieres un poco más de aire en la primera sección del lado derecho cuando hay títulos */
+    #lists .list-section:first-child .list-title{
+      margin-top: 12px;
+    }
+
+    
+    /* Oculta la X nativa del <input type="search"> en WebKit */
+    .search input::-webkit-search-cancel-button{
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    /* Botón X dentro del buscador */
+    .search .clear-btn{
+      position:absolute;
+      top:50%;
+      right:var(--search-clear-right);
+      transform:translateY(-50%);
+      display:none;                 /* aparece sólo con texto */
+      align-items:center;
+      justify-content:center;
+      width:18px; height:18px;
+      border:none; background:transparent; padding:0; cursor:pointer;
+    }
+    .search .clear-btn .material-symbols-outlined{
+      font-size:18px; line-height:1;
+      color:#000; opacity:.75;     /* mismo tono del ícono de lupa */
+      transition:transform .12s ease, opacity .12s ease;
+    }
+    .search .clear-btn:hover .material-symbols-outlined{
+      opacity:1; transform:scale(1.05);
     }
 
   </style>
@@ -580,6 +679,9 @@
             <div class="search">
               <span class="material-symbols-outlined icn">database_search</span>
               <input id="q" type="search" placeholder="Buscador"/>
+              <button type="button" class="clear-btn" id="q-clear" title="Limpiar">
+                <span class="material-symbols-outlined">close_small</span>
+              </button>
             </div>
             <div class="tabs">
               <button class="tab active" data-tab="todo">Todo</button>
@@ -719,16 +821,25 @@
        - resto : 20 filas antes de scroll
        ================================ */
     function enforceScrollLimit(){
+      const inSearchOnTodo = (activeTab === "todo") && (String(searchTerm || "").trim().length > 0);
+
       document.querySelectorAll("#lists .list-section").forEach(section=>{
         const wrap = section.querySelector(".table-wrap");
         if(!wrap) return;
 
-        // Saltar si la sección está oculta
+        // Si la sección está oculta, limpia límites y continúa
         const secDisplay = getComputedStyle(section).display;
         if(secDisplay === 'none'){
           wrap.style.maxHeight = "";
           wrap.style.overflowY = "";
           return;
+        }
+
+        // 🔓 MODO "SIN RESTRICCIONES" cuando estás en TODO y hay búsqueda
+        if (inSearchOnTodo){
+          wrap.style.maxHeight = "";
+          wrap.style.overflowY = "";
+          return; // ← no aplicamos ningún límite
         }
 
         const table = wrap.querySelector("table");
@@ -744,7 +855,10 @@
         const rows  = tbody ? Array.from(tbody.rows) : [];
         const count = rows.length;
 
-        const threshold = (activeTab === "todo") ? 4 : 21; // 👈 regla solicitada
+        // Mantén tus reglas originales cuando NO estás buscando en TODO:
+        // - TODO: 3 filas (threshold 2 por tu cálculo actual)
+        // - Otras pestañas: 20 filas (threshold 21 por tu cálculo actual)
+        const threshold = (activeTab === "todo") ? 2 : 21;
 
         if(count > threshold){
           // Buscar una fila con alto medible
@@ -1071,8 +1185,9 @@
       return false;
     }
 
-    function tableWrap(innerHTML){
-      return `<div class="list-section"><div class="table-wrap">${innerHTML}</div></div>`;
+    function tableWrap(innerHTML, titleText=""){
+      const title = titleText ? `<div class="col-title list-title">${esc(titleText)}</div>` : "";
+      return `<div class="list-section">${title}<div class="table-wrap">${innerHTML}</div></div>`;
     }
 
     function tablePersonas(rows){
@@ -1209,10 +1324,24 @@
       const servs    = cache.servicios.filter(r=> matchesSearch(r, ["nombre","empresa","ruc","celular","servicio"]));
       const invs     = cache.inventario.filter(r=> matchesSearch(r, ["producto","marca","cantidad","precio_ref"]));
 
-      $("#list-personas").innerHTML  = tableWrap(tablePersonas(personas));
-      $("#list-bienes").innerHTML    = tableWrap(tableBienes(bienes));
-      $("#list-servicios").innerHTML = tableWrap(tableServicios(servs));
-      $("#list-inventario").innerHTML= tableWrap(tableInventario(invs));
+      const showTitles = (activeTab === "todo");
+
+      $("#list-personas").innerHTML   = tableWrap(
+        tablePersonas(personas),
+        showTitles ? "Personal" : ""
+      );
+      $("#list-bienes").innerHTML     = tableWrap(
+        tableBienes(bienes),
+        showTitles ? "Bienes" : ""
+      );
+      $("#list-servicios").innerHTML  = tableWrap(
+        tableServicios(servs),
+        showTitles ? "Servicios" : ""
+      );
+      $("#list-inventario").innerHTML = tableWrap(
+        tableInventario(invs),
+        showTitles ? "Inventario" : ""
+      );
 
       $("#list-personas").style.display  = (activeTab==="todo" || activeTab==="personas")  ? "block" : "none";
       $("#list-bienes").style.display    = (activeTab==="todo" || activeTab==="bienes")    ? "block" : "none";
@@ -1233,12 +1362,44 @@
     // Búsqueda
     function clearSearch(){
       searchTerm = "";
-      const q = $("#q"); if(q){ q.value=""; }
+      const qi = $("#q");
+      if(qi){ qi.value=""; }
       render(); syncHeaderToTable();
+
+      const qc = $("#q-clear");
+      if(qc){ qc.style.display = "none"; }
     }
-    $("#q").addEventListener("input", (e)=>{ searchTerm = e.target.value; render(); });
-    $("#q").addEventListener("keydown", (e)=>{ if(e.key==="Escape"){ e.preventDefault(); clearSearch(); }});
-    $("#q").addEventListener("search", (e)=>{ searchTerm = e.target.value; render(); });
+
+    const q      = $("#q");
+    const qClear = $("#q-clear");
+
+    function syncClearBtn(){
+      if(!qClear || !q) return;
+      qClear.style.display = q.value.trim() ? "inline-flex" : "none";
+    }
+
+    q?.addEventListener("input", (e)=>{
+      searchTerm = e.target.value;
+      render();
+      syncClearBtn();
+    });
+
+    q?.addEventListener("keydown", (e)=>{
+      if(e.key==="Escape"){
+        e.preventDefault();
+        clearSearch();
+      }
+    });
+
+    q?.addEventListener("search", (e)=>{
+      searchTerm = e.target.value;
+      render();
+      syncClearBtn();
+    });
+
+    qClear?.addEventListener("click", ()=>{
+      clearSearch();
+    });
 
     // Export
     $("#btnExport").addEventListener("click", ()=>{
@@ -1282,6 +1443,11 @@
     // Acciones cabecera + selección
     const hdrActions = document.getElementById('hdr-actions');
 
+    // 🔒 Helper: devuelve la fila que está en edición (si existe)
+    function getEditingRow(){
+      return document.querySelector('#lists tr[data-editing="1"]');
+    }
+
     function actionsViewHTML(){
       return `
         <button class="act-btn tb-edit" title="Editar"><span class="material-symbols-outlined">stylus_note</span></button>
@@ -1292,13 +1458,20 @@
         <button class="act-btn tb-save" title="Guardar"><span class="material-symbols-outlined">done</span></button>
         <button class="act-btn tb-cancel" title="Cancelar"><span class="material-symbols-outlined">close</span></button>`;
     }
-    function setActionsMode(mode){ hdrActions.innerHTML = (mode==='edit'? actionsEditHTML() : actionsViewHTML()); }
+
+    function setActionsMode(mode){
+      hdrActions.innerHTML = (mode==='edit'? actionsEditHTML() : actionsViewHTML());
+      // Recalcula márgenes del header contra la tabla y asegura centrado correcto
+      syncHeaderToTable();
+    }
 
     function hideActions(){
       hdrActions.classList.remove('show');
       hdrActions.dataset.targetId='';
       hdrActions.dataset.targetType='';
       hdrActions.innerHTML = actionsViewHTML();
+      // Ajuste por si cambió el ancho disponible
+      syncHeaderToTable();
     }
 
     function getSelectedRows(){ return $$("#lists tr.selected"); }
@@ -1309,6 +1482,16 @@
     }
 
     function updateActionToolbar(){
+      // 🔒 Si hay una fila en edición, forzamos el modo edición (✔ / ✖)
+      const editing = getEditingRow();
+      if (editing){
+        setActionsMode('edit');
+        hdrActions.dataset.targetId   = editing.dataset.id   || '';
+        hdrActions.dataset.targetType = editing.dataset.type || '';
+        hdrActions.classList.add('show');
+        return; // no dejamos que vuelva a lápiz/basura
+      }
+
       const selected = getSelectedRows();
       if(selected.length===0){ hideActions(); return; }
 
@@ -1324,10 +1507,29 @@
       hdrActions.classList.add('show');
     }
 
-    // click en filas (CTRL suma/quita, SHIFT selecciona rango tipo Excel)
-    $("#lists").addEventListener("click", (e)=>{
+    // selección instantánea (CTRL/SHIFT) con bloqueo cuando hay edición activa
+    document.getElementById("lists").addEventListener("pointerdown", (e) => {
+      // Si clickeas dentro del input en edición, no tocamos nada
+      if (e.target.closest(".edit-input")) return;
+
       const tr = e.target.closest("tr");
-      if(!tr) return;
+      if (!tr) return;
+
+      // 🔒 Bloqueo duro: si hay una fila en edición, NO permitimos cambiar selección
+      const editing = getEditingRow();
+      if (editing && tr !== editing){
+        // Reforzamos el foco dentro de la edición y mantenemos ✔ / ✖
+        const first = editing.querySelector('.edit-input');
+        if (first) first.focus({ preventScroll:true });
+
+        setActionsMode('edit');
+        hdrActions.dataset.targetId   = editing.dataset.id   || '';
+        hdrActions.dataset.targetType = editing.dataset.type || '';
+        hdrActions.classList.add('show');
+
+        e.preventDefault();
+        return; // salimos: no cambia la selección
+      }
 
       // No seleccionar filas de totales ni filas sin dataset usable
       if (tr.closest("tfoot") || !tr.dataset || !tr.dataset.type || !tr.dataset.id) {
@@ -1337,29 +1539,24 @@
       const isShift = e.shiftKey;
       const isCtrl  = e.ctrlKey || e.metaKey; // meta para compatibilidad Mac
 
-      if(isShift){
-        // Si el ancla no está en el mismo grupo/tabla, usamos una fila seleccionada del mismo grupo o la actual
+      if (isShift) {
         let anchor = lastAnchorRow;
-        if(!anchor || !sameGroup(anchor, tr)){
+        if (!anchor || !sameGroup(anchor, tr)) {
           anchor = getGroupRows(tr).find(r => r.classList.contains("selected")) || tr;
         }
-        // Ctrl+Shift = agrega el rango al conjunto actual (no limpia)
         selectRangeBetween(anchor, tr, /*append=*/isCtrl);
-        // El ancla pasa a ser la última clickeada
         lastAnchorRow = tr;
-      }else if(isCtrl){
-        // Ctrl solo: alterna selección de la fila
+      } else if (isCtrl) {
         tr.classList.toggle("selected");
-        lastAnchorRow = tr; // actualizamos ancla al último click
-      }else{
-        // Click simple: limpia y selecciona sólo esta fila
+        lastAnchorRow = tr;
+      } else {
         clearAllSelection();
         tr.classList.add("selected");
         lastAnchorRow = tr;
       }
 
       updateActionToolbar();
-    });
+    }, { passive: true });
 
     /* ===== Helpers selección de filas (Shift/Ctrl) ===== */
     function sameGroup(a, b){
@@ -1455,7 +1652,21 @@
 
     function enterEdit(tr, type, id){
       const cfg = TABLES[type]; if(!cfg) return;
+
+      // 🔸 Solo una fila puede quedar marcada como "en edición"
+      $$('#lists tr[data-editing="1"]').forEach(r => r.removeAttribute('data-editing'));
+
+      // 🔸 Marca esta fila como editando y asegúrala como seleccionada
       tr.dataset.editing = "1";
+      tr.classList.add('selected');
+      lastAnchorRow = tr; // ancla de rango en la fila editada
+
+      // 🔒 Fijamos la toolbar en modo edición (✔ / ✖) y apuntando a esta fila
+      hdrActions.dataset.targetId   = id;
+      hdrActions.dataset.targetType = type;
+      setActionsMode('edit');
+      hdrActions.classList.add('show');
+
       const inputs = [];
 
       cfg.cols.forEach((field)=>{
@@ -1464,7 +1675,7 @@
 
         const currentText = td.textContent;
         const current = (type==="inventario" && field==="precio_ref")
-          ? (String(currentText).replace(/[^\d.,-]/g,"").replace(",","."))
+          ? (String(currentText).replace(/[^\d.,-]/g,"").replace(",",".")) 
           : currentText;
 
         td.innerHTML = `
