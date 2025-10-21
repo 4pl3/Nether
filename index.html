@@ -132,7 +132,7 @@
     /* Login */
     .auth-wrap{ display:grid; place-items:center; min-height:calc(100vh - var(--strip-height) - var(--footer-h) - (var(--wrap-mt) + 12px)); }
     .auth{
-      width:100%; max-width:300px; padding:10px; border:1px solid var(--border); border-radius:10px; background:#fff;
+      width:100%; max-width:240px; padding:10px; border:1px solid var(--border); border-radius:10px; background:#fff;
       box-shadow:0 2px 12px rgba(0,0,0,.05);
     }
     .auth-title{ margin:2px 0 8px; text-align:center; font-size:12px; font-weight:700; color:#0f172a; }
@@ -499,7 +499,7 @@
     /* Títulos sobre cada listado (mismo estilo que "Formulario") */
     .list-title{
       /* reusa la tipografía/estilo de .col-title al usar ambas clases en el HTML */
-      margin:10px 0 6px;           /* separación cómoda del listado */
+      margin:10px 0 6px;
     }
 
     /* Opcional: si quieres un poco más de aire en la primera sección del lado derecho cuando hay títulos */
@@ -596,6 +596,27 @@
       vertical-align:-2px;
     }
 
+    /* Ojo afuera del input, sin contenedor */
+    .toggle-eye{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      width:var(--ctl-h);
+      height:var(--ctl-h);
+      margin-left:4px;        /* separadito del input */
+      cursor:pointer;
+      background:transparent;
+      border:none;
+      user-select:none;
+      color:#000 !important;
+    }
+
+    /* feedback hover (puedes mantenerlo igual) */
+    .toggle-eye:hover{ filter:brightness(.85); }
+
+    /* feedback al pasar el mouse */
+    .toggle-eye:hover{ filter:brightness(.85); }
+
   </style>
 </head>
 
@@ -639,9 +660,9 @@
             <label><span class="material-symbols-outlined">key</span> Contraseña</label>
             <div class="input-row">
               <input id="auth-pass" type="password" placeholder="••••••••" style="flex:1" />
-              <button type="button" id="togglePass" class="btn ghost icon" title="Ver/Ocultar">
-                <span class="material-symbols-outlined">visibility</span>
-              </button>
+              <span id="togglePass" class="material-symbols-outlined toggle-eye" title="Ver/Ocultar" aria-label="Ver/Ocultar">
+                visibility
+              </span>
             </div>
           </div>
         </div>
@@ -1051,12 +1072,12 @@
       $("#tickerWrap").style.display= showApp ? "block" : "none";
     }
 
-    $("#togglePass")?.addEventListener("click", ()=>{
-      const i = $("#auth-pass"); if(!i) return;
-      const showing = i.type === "text";
-      i.type = showing ? "password" : "text";
-      $("#togglePass span").textContent = showing ? "visibility" : "visibility_off";
-    });
+      $("#togglePass")?.addEventListener("click", ()=>{
+        const i = $("#auth-pass"); if(!i) return;
+        const showing = i.type === "text";
+        i.type = showing ? "password" : "text";
+        $("#togglePass").textContent = showing ? "visibility" : "visibility_off";
+      });
 
     // Login
     async function doLogin(){
