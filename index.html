@@ -535,8 +535,86 @@
       opacity:1; transform:scale(1.05);
     }
 
+    /* ===== Modal compacto dentro de la página ===== */
+    body.modal-open{ overflow:hidden; }
+
+    .modal-overlay{
+      position:fixed; inset:0; display:none; align-items:center; justify-content:center;
+      background:rgba(0,0,0,.22); z-index:9999;
+    }
+
+    /* Modal más COMPACTO y ajustado al contenido */
+    .modal{
+      display:inline-grid;               /* shrink-to-fit para que se ajuste al contenido */
+      width:auto;                        /* sin ancho fijo */
+      max-width:calc(100vw - 32px);      /* límite de seguridad en pantallas pequeñas */
+      border:1px solid var(--border);
+      border-radius:12px;
+      background:#fff;
+      padding:8px;                       /* antes 10px */
+      gap:6px;                           /* antes 8px */
+      box-shadow:0 8px 24px rgba(0,0,0,.14);
+      text-align:center;
+    }
+
+    .modal .col-title{
+      font-size:var(--font-size-base);
+      line-height:1.15;                  /* más cerrado */
+      font-weight:400;
+      color:#111827;
+      margin:0 0 2px;                    /* menos aire bajo el título */
+    }
+
+    .modal-msg{
+      font:inherit; color:#000;
+      margin:0;                          /* sin margen extra */
+      line-height:1.2;                   /* compacto */
+    }
+
+    /* Contenedor de botones COMPACTO y centrado */
+    .modal-actions{
+      display:inline-flex;               /* se ajusta al ancho de los botones */
+      align-items:center;
+      justify-content:center;
+      gap:6px;                           /* antes 8px */
+      margin:0 auto;                     /* sin margen superior extra */
+    }
+
+    /* Botones ajustados al texto (sin estirar) */
+    .modal-actions .btn{
+      flex:0 0 auto;                     /* NO llenar todo el ancho */
+      min-width:auto;
+      height:var(--ctl-h);               /* respeta tu altura global de controles */
+      padding:0 8px;                     /* más compacto */
+      white-space:nowrap;                /* que no parta el texto */
+      color:#000 !important;             /* letra negra, como pediste */
+    }
+
+    /* (opcional) icono un pelín más compacto dentro del botón */
+    .modal-actions .btn .material-symbols-outlined{
+      font-size:16px;
+      vertical-align:-2px;
+    }
+
   </style>
 </head>
+
+<!-- ===== Modal compacto reutilizable ===== -->
+<div id="modal-overlay" class="modal-overlay" aria-hidden="true">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div id="modal-title" class="col-title" style="margin:0">Confirmación</div>
+    <div id="modal-msg" class="modal-msg">Mensaje</div>
+    <div class="modal-actions">
+      <button id="modal-ok" class="btn primary">
+        <span class="material-symbols-outlined">done</span> Aceptar
+      </button>
+      <button id="modal-cancel" class="btn ghost">
+        <span class="material-symbols-outlined">close</span> Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
 <body>
 
   <!-- Ticker -->
@@ -760,6 +838,48 @@
     const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     const $  = (sel, root=document) => root.querySelector(sel);
     const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
+
+    /* ===== Helpers de modal: confirm/alert en página ===== */
+    function uiShow(options){
+      const { title="Confirmación", message="", showCancel=true, okText="Aceptar", cancelText="Cancelar" } = options || {};
+      const ov = $("#modal-overlay");
+      if(!ov) return Promise.resolve(false);
+
+      $("#modal-title").textContent = title;
+      $("#modal-msg").textContent = message;
+      $("#modal-ok").innerHTML = `<span class="material-symbols-outlined">done</span> ${okText}`;
+      $("#modal-cancel").innerHTML = `<span class="material-symbols-outlined">close</span> ${cancelText}`;
+      $("#modal-cancel").style.display = showCancel ? "inline-flex" : "none";
+
+      return new Promise(resolve=>{
+        const onOk = ()=>{ cleanup(); resolve(true);  };
+        const onCancel = ()=>{ cleanup(); resolve(false); };
+        const onKey = (e)=>{ if(e.key==="Escape") onCancel(); if(e.key==="Enter") onOk(); };
+
+        function cleanup(){
+          document.removeEventListener("keydown", onKey);
+          $("#modal-ok").removeEventListener("click", onOk);
+          $("#modal-cancel").removeEventListener("click", onCancel);
+          ov.style.display = "none"; ov.setAttribute("aria-hidden","true");
+          document.body.classList.remove("modal-open");
+        }
+
+        document.addEventListener("keydown", onKey);
+        $("#modal-ok").addEventListener("click", onOk);
+        $("#modal-cancel").addEventListener("click", onCancel);
+
+        ov.style.display = "flex"; ov.removeAttribute("aria-hidden");
+        document.body.classList.add("modal-open");
+        $("#modal-ok").focus({ preventScroll:true });
+      });
+    }
+
+    function uiConfirm(message, title="Confirmación"){
+      return uiShow({ title, message, showCancel:true });
+    }
+    function uiAlert(message, title="Aviso"){
+      return uiShow({ title, message, showCancel:false, okText:"Entendido" });
+    }
 
     function setConnStatus(ok){
       const el = $("#conn");
@@ -1610,7 +1730,8 @@
 
       if(btn.classList.contains('tb-del') && selected.length>1){
         const total = selected.length;
-        if(!confirm(`¿Borrar ${total} registro${total>1?'s':''}?`)) return;
+        const ok = await uiConfirm(`¿Borrar ${total} registro${total>1?'s':''}?`, "Confirmación");
+        if(!ok) return;
         const byType = getSelectedIdsByType();
         await doDeleteBulk(byType);
         return;
@@ -1734,17 +1855,20 @@
           banco    : payload.banco || ""
         };
         ({ error } = await supabase.from(cfg.table).update(fb).eq("id", id));
-        if(error){ alert("Error al guardar: " + error.message); return; }
+        if(error){ await uiAlert("Error al guardar: " + error.message, "Error"); return; }
       }else if(error){
-        alert("Error al guardar: " + error.message); return;
+        await uiAlert("Error al guardar: " + error.message, "Error"); return;
       }
     }
 
     async function doDelete(type, id){
       const cfg = TABLES[type]; if(!cfg) return;
-      if(!confirm("¿Borrar este registro?")) return;
+      const ok = await uiConfirm("¿Borrar este registro?", "Confirmación");
+      if(!ok) return;
+
       const { error } = await supabase.from(cfg.table).delete().eq("id", id);
-      if(error){ alert("Error al borrar: " + error.message); return; }
+      if(error){ await uiAlert("Error al borrar: " + error.message, "Error"); return; }
+
       await fetchAll(); render();
       hideActions();
     }
