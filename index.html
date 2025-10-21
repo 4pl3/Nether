@@ -653,7 +653,7 @@
           <div class="field">
             <label><span class="material-symbols-outlined">mail</span> Correo</label>
             <div class="input-row">
-              <input id="auth-email" type="email" placeholder="tu@empresa.com" style="flex:1" />
+              <input id="auth-email" type="email" placeholder="tu@correo.com" style="flex:1" />
             </div>
           </div>
           <div class="field">
@@ -667,10 +667,16 @@
           </div>
         </div>
 
-        <div class="save-row">
+        <!-- DESPUÉS -->
+        <div class="save-row" style="gap:6px; flex-wrap:wrap">
           <button class="btn primary" id="btnLogin" type="submit">
             <span class="material-symbols-outlined">login</span> Ingresar
           </button>
+
+          <button class="btn ghost" id="btnSignUp" type="button" title="Crear cuenta nueva">
+            <span class="material-symbols-outlined">person_add</span> Crear cuenta
+          </button>
+
           <div id="auth-msg" class="status"></div>
         </div>
       </form>
@@ -841,11 +847,26 @@
 
     const BASE_PERSONA_COLS = ["nombres","dni","celular","ruc","direccion","cuenta","banco"];
 
-    const ALLOWED_DOMAINS = [];
-    function isAllowedEmail(email){
-      if(!ALLOWED_DOMAINS.length) return true;
-      const domain = email.split('@')[1]?.toLowerCase();
-      return ALLOWED_DOMAINS.includes(domain);
+    // DESPUÉS
+    // 🔒 Correos EXACTOS autorizados para CREAR cuenta (edita esta lista)
+    const ALLOWED_EMAILS = [ "m19151313@gmail.com", "esaudcr@gmail.com"
+      // "tucorreo@nether.com.pe",
+      // "admin@nether.com.pe",
+    ];
+
+    // (opcional) Dominios completos autorizados para CREAR cuenta
+    const ALLOWED_DOMAINS = [ 
+      // "nether.com.pe",
+      // "muni.gob.pe",
+    ];
+
+    // Solo controla la CREACIÓN de cuentas (no el login)
+    function canSignUpEmail(email){
+      const e = String(email||"").trim().toLowerCase();
+      const domain = e.split("@")[1] || "";
+      if (ALLOWED_EMAILS.length && ALLOWED_EMAILS.includes(e)) return true;
+      if (ALLOWED_DOMAINS.length && ALLOWED_DOMAINS.includes(domain)) return true;
+      return false; // si no está en la lista, NO se crea
     }
 
     let activeTab = "todo";
@@ -1084,10 +1105,7 @@
       const email = $("#auth-email").value.trim();
       const pass  = $("#auth-pass").value.trim();
       const btn   = $("#btnLogin");
-      if(!isAllowedEmail(email)){
-        $("#auth-msg").textContent = "Acceso restringido. Correo no autorizado.";
-        return;
-      }
+
       $("#auth-msg").textContent = "Conectando...";
       btn.disabled = true;
 
@@ -1110,6 +1128,62 @@
       btn.disabled = false;
       updateLeftEmpty();
     }
+
+    // ===== Registro restringido por allowlist (Supabase v2) =====
+    async function doSignUp(){
+      const email = $("#auth-email").value.trim();
+      const pass  = $("#auth-pass").value.trim();
+      const msg   = $("#auth-msg");
+      const btnL  = $("#btnLogin");
+      const btnS  = $("#btnSignUp");
+
+      if(!email || !pass){
+        msg.textContent = "Escribe correo y contraseña para crear la cuenta.";
+        return;
+      }
+      if(!canSignUpEmail(email)){
+        msg.textContent = "Correo NO autorizado para crear cuenta.";
+        return;
+      }
+
+      msg.textContent = "Creando cuenta...";
+      btnL?.setAttribute("disabled", "disabled");
+      btnS?.setAttribute("disabled", "disabled");
+
+      try{
+        const { data, error } = await supabase.auth.signUp({ email, password: pass });
+
+        if(error){
+          msg.textContent = "Error: " + error.message;
+          return;
+        }
+
+        // Si tienes confirmación por email activada en Supabase:
+        if(!data.session){
+          msg.textContent = "Cuenta creada. Revisa tu correo para confirmar.";
+          return;
+        }
+
+        // Si no requiere confirmación, entra directo:
+        user = data.user;
+        msg.textContent = "Cuenta creada y sesión iniciada.";
+        toggleApp(true);
+        initTicker();
+        await fetchAll(); render(); syncHeaderToTable();
+        stopRealtime(); initRealtime();
+        updateLeftEmpty();
+      }catch(err){
+        msg.textContent = "Error inesperado: " + (err?.message || err);
+      }finally{
+        btnL?.removeAttribute("disabled");
+        btnS?.removeAttribute("disabled");
+      }
+    }
+
+    // Click en "Crear cuenta"
+    $("#btnSignUp")?.addEventListener("click", doSignUp);
+        
+
     $("#auth-form").addEventListener("submit", async (e)=>{ e.preventDefault(); await doLogin(); });
     $("#auth-form").addEventListener("keydown", async (e)=>{ if(e.key==="Enter"){ e.preventDefault(); await doLogin(); }});
 
