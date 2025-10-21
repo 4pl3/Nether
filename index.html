@@ -491,6 +491,16 @@
       margin:2px 0 6px;
     }
 
+    /* DESPUÉS — Usuario alineado a la izquierda */
+    #user-display{
+      /* .col-title ya define fuente/tamaño/line-height */
+      margin: 0 0 4px;          /* pegado a “Formulario” */
+      text-align: left;         /* << ALINEADO A LA IZQUIERDA */
+    }
+    #title-form{
+      margin-top: 0;            /* “Formulario” queda como estaba (centrado) */
+    }
+
     /* Más espacio debajo del título 'Base de Datos' */
     .right > .col-title{
       margin-bottom: 12px; /* súbelo a 14px o 16px si lo quieres más separado */
@@ -687,7 +697,11 @@
       <div class="app-main">
         <!-- IZQUIERDA -->
         <aside class="left">
+          <!-- NUEVO: rótulo con el usuario actual (misma tipografía que “Formulario”) -->
+          <div class="col-title" id="user-display" style="display:none"></div>
+
           <div class="col-title" id="title-form">Formulario</div>
+
           <div class="actions">
             <button class="act-icon" id="btnPersonal"  title="Personal"><span class="material-symbols-outlined">article_person</span></button>
             <button class="act-icon" id="btnBienes"    title="Bienes"><span class="material-symbols-outlined">package_2</span></button>
@@ -945,6 +959,26 @@
       window.addEventListener('resize', recalc);
     }
 
+    /* === Usuario visible sobre “Formulario” =============================== */
+    function extractUserNameFromEmail(email){
+      const e = String(email || "").trim();
+      return e.includes("@") ? e.split("@")[0] : e;
+    }
+    function updateUserDisplay(){
+      const box = document.getElementById("user-display");
+      if(!box) return;
+
+      const email = user?.email || "";
+      if(email){
+        const name = extractUserNameFromEmail(email);
+        box.textContent = "Usuario: " + (name || "—");
+        box.style.display = "block";
+      }else{
+        box.textContent = "";
+        box.style.display = "none";
+      }
+    }
+
     // Detectar tabla visible
     function getVisibleTableWrap(){
       const order = [
@@ -1078,6 +1112,7 @@
       toggleApp(!!user);
 
       if(user){
+        updateUserDisplay();         // ← NUEVO
         initTicker();
         await fetchAll();
         render();
@@ -1119,6 +1154,7 @@
       user = data.user;
       $("#auth-msg").textContent = "Listo.";
       toggleApp(true);
+      updateUserDisplay();                 // ← NUEVO
       initTicker();
 
       await fetchAll();
@@ -1168,6 +1204,7 @@
         user = data.user;
         msg.textContent = "Cuenta creada y sesión iniciada.";
         toggleApp(true);
+        updateUserDisplay();                 // ← NUEVO
         initTicker();
         await fetchAll(); render(); syncHeaderToTable();
         stopRealtime(); initRealtime();
@@ -1194,6 +1231,9 @@
       $("#auth-msg").textContent = "Sesión cerrada.";
       user = null;
       cache = { personas:[], bienes:[], servicios:[], inventario:[] };
+      // Oculta el rótulo del usuario
+      const ud = document.getElementById("user-display");
+      if(ud){ ud.style.display = "none"; ud.textContent = ""; }
       try{ await supabase.auth.signOut(); }catch(_e){}
     });
 
