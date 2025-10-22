@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="es">
 <head>
   <meta charset="utf-8" />
@@ -46,6 +46,10 @@
       --icon-blue:#335eea;
       --icon-size:17px;
       --row-action-size:16px;
+
+      /* Alto óptico del encabezado y tamaño de glifo del header */
+      --hdr-h:22px;                                  /* mismo alto que usas en .list-header */
+      --hdr-icn-size:var(--row-action-size);
 
       /* Títulos/acciones izq (más pequeños) */
       --sec-title-size:13px;
@@ -103,13 +107,16 @@
       white-space: nowrap;
       word-wrap: normal;
       direction: ltr;
-      -webkit-font-feature-settings: "liga";
+      /* estándar: asegura ligaduras sin el prefijo obsoleto */
+      font-variant-ligatures: normal;
+      font-feature-settings: "liga" 1;
       -webkit-font-smoothing: antialiased;
       font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24;
       vertical-align:-2px;
       color:var(--icon-blue);
       transition:transform .12s ease, filter .12s ease;
     }
+
     .search .material-symbols-outlined{ color:#000 !important; }
     .btn.primary .material-symbols-outlined{ color:var(--brand); }
     /* DESPUÉS: morado y hover más oscuro (igual estilo que Cerrar sesión) */
@@ -329,15 +336,26 @@
     /* Derecha */
     .right{ display:flex; flex-direction:column; min-height:0; min-width:0; }
     .list-viewport{ flex:1; min-height:0; min-width:0; display:flex; flex-direction:column; position:relative; }
-    .list-header{ min-height:22px; max-width:100%; margin:0; }
-    /* El header alinea sus márgenes a la tabla con syncHeaderToTable(), 
-      y ahora sirve de "marco" para centrar la toolbar dentro. */
-    .list-header-inner{
-      position:relative;                /* <- clave para centrar absoluto */
-      display:flex; align-items:center; gap:8px;
-      margin-left:0; margin-right:0;
+    /* Encabezado de resultados: respiración vertical coherente con la topbar */
+    .list-header{
+      min-height:var(--hdr-h);
+      max-width:100%;
+      margin:4px 0;
     }
-    .list-header-inner h3{ margin:0; }
+
+    /* El marco interno sigue sirviendo para centrar la toolbar */
+    .list-header-inner{
+      position:relative;
+      display:flex; align-items:center; gap:8px;
+      margin-left:0; margin-right:0;   /* los laterales los ajusta syncHeaderToTable() */
+    }
+
+    #list-title.col-title{
+      display:flex;
+      align-items:center;          /* centra verticalmente el texto */
+      margin:0;                    /* sin empuje extra arriba/abajo */
+      line-height:var(--hdr-h);    /* misma caja que el header */
+    }
 
     /* Toolbar centrada SIEMPRE respecto al ancho del listado */
     .hdr-actions{
@@ -354,7 +372,13 @@
     }
     .hdr-actions.show{ visibility:visible; opacity:1; }
     .hdr-actions button{ border:none; background:transparent; padding:0; line-height:1; cursor:pointer; }
-    .hdr-actions .material-symbols-outlined{ font-size:var(--row-action-size); vertical-align:-2px; }
+    .hdr-actions .material-symbols-outlined{
+      font-size:var(--hdr-icn-size);
+      line-height:1;
+      vertical-align:middle;                            /* alinea por centroides */
+      /* fuerza opsz al mismo tamaño del glifo para mejor aspecto óptico */
+      font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' var(--hdr-icn-size);
+    }
     .hdr-actions button:hover .material-symbols-outlined{ filter:brightness(.85); }
 
     .list-section{ position:relative; }
@@ -776,12 +800,10 @@
     </div>
   </div>
 
-<body>
-
   <!-- Ticker -->
   <div class="moving-strip" id="tickerWrap">
     <span class="scroll-text" id="ticker">
-      NETHER <span class="mini-sac">S.A.C.</span> / R.U.C. : 20613159216,
+      NETHER <span class="mini-sac">S.A.C.</span> / R.U.C. : 20613159216
     </span>
   </div>
 
@@ -951,9 +973,10 @@
           </div>
 
           <div class="list-viewport">
-            <div id="listHeader" class="list-header">
+
+            <div id="listHeader" class="list-header" style="display:none">
               <div id="listHeaderInner" class="list-header-inner">
-                <h3 id="list-title">Resultados</h3>
+                <div id="list-title" class="col-title" aria-live="polite"></div>
                 <div id="hdr-actions" class="hdr-actions" aria-hidden="true">
                   <button class="act-btn tb-edit" title="Editar"><span class="material-symbols-outlined">stylus_note</span></button>
                   <button class="act-btn tb-del"  title="Eliminar"><span class="material-symbols-outlined">delete</span></button>
@@ -1160,6 +1183,29 @@
       inner.style.marginRight = padR + "px";
     }
     window.addEventListener("resize", syncHeaderToTable);
+
+    /* ===== Snapshot de scroll por sección ===== */
+    function getScrollState(){
+      const ids = ["personas","bienes","servicios","inventario"];
+      const st = {};
+      ids.forEach(id=>{
+        const wrap = document.querySelector(`#list-${id} .table-wrap`);
+        if(wrap){
+          st[id] = { left: wrap.scrollLeft, top: wrap.scrollTop };
+        }
+      });
+      return st;
+    }
+    function restoreScrollState(st){
+      if(!st) return;
+      Object.entries(st).forEach(([id, pos])=>{
+        const wrap = document.querySelector(`#list-${id} .table-wrap`);
+        if(wrap){
+          wrap.scrollLeft = pos.left || 0;
+          wrap.scrollTop  = pos.top  || 0;
+        }
+      });
+    }
 
     /* ================================
        LÍMITE DE FILAS SEGÚN PESTAÑA
@@ -1712,14 +1758,28 @@
     }
 
     function render(){
-      $("#list-title").textContent =
-        activeTab==="todo" ? "Resultados" :
-        activeTab==="personas" ? "Listado: Personal" :
-        activeTab==="bienes" ? "Listado: Bienes" :
-        activeTab==="servicios" ? "Listado: Servicios" :
-        "Listado: Inventario";
+      // 1) 🔒 Guarda el scroll actual de CADA listado
+      const scrollState = getScrollState();
 
       hideActions();
+
+      // ¿Estamos en TODO sin término de búsqueda?
+      const onTodoNoSearch = (activeTab === "todo") && (String(searchTerm || "").trim() === "");
+
+      // Mostrar/ocultar TODO el encabezado (título + toolbar)
+      const header = document.getElementById("listHeader");
+      if (header) header.style.display = onTodoNoSearch ? "none" : "block";
+
+      // Título (mismo estilo que "Formulario")
+      const listTitleEl = document.getElementById("list-title");
+      if (listTitleEl){
+        listTitleEl.textContent = onTodoNoSearch ? "" :
+          (activeTab==="todo"      ? "Resultados" :
+          activeTab==="personas"  ? "Listado: Personal" :
+          activeTab==="bienes"    ? "Listado: Bienes" :
+          activeTab==="servicios" ? "Listado: Servicios" :
+                                    "Listado: Inventario");
+      }
 
       const personas = cache.personas.filter(r => matchesSearch(r, [
         "categoria","nombres","apellidos","dni","celular","ruc","direccion",
@@ -1731,24 +1791,14 @@
 
       const showTitles = (activeTab === "todo");
 
-      $("#list-personas").innerHTML   = tableWrap(
-        tablePersonas(personas),
-        showTitles ? "Personal" : ""
-      );
-      $("#list-bienes").innerHTML     = tableWrap(
-        tableBienes(bienes),
-        showTitles ? "Bienes" : ""
-      );
-      $("#list-servicios").innerHTML  = tableWrap(
-        tableServicios(servs),
-        showTitles ? "Servicios" : ""
-      );
-      $("#list-inventario").innerHTML = tableWrap(
-        tableInventario(invs),
-        showTitles ? "Inventario" : ""
-      );
+      // 2) 🔁 Repinta las tablas
+      $("#list-personas").innerHTML   = tableWrap(tablePersonas(personas),   showTitles ? "Personal"   : "");
+      $("#list-bienes").innerHTML     = tableWrap(tableBienes(bienes),       showTitles ? "Bienes"     : "");
+      $("#list-servicios").innerHTML  = tableWrap(tableServicios(servs),     showTitles ? "Servicios"  : "");
+      $("#list-inventario").innerHTML = tableWrap(tableInventario(invs),     showTitles ? "Inventario" : "");
 
-      const onTodoNoSearch = (activeTab === "todo") && (String(searchTerm || "").trim() === "");
+      // 3) 🔙 Restaura los scrolls (evita que salte al inicio)
+      restoreScrollState(scrollState);
 
       const re = $("#right-empty");
       if (re) re.style.display = onTodoNoSearch ? "block" : "none";
@@ -1758,8 +1808,9 @@
       $("#list-servicios").style.display  = onTodoNoSearch ? "none" : ((activeTab==="todo" || activeTab==="servicios") ? "block" : "none");
       $("#list-inventario").style.display = onTodoNoSearch ? "none" : ((activeTab==="todo" || activeTab==="inventario")? "block" : "none");
 
+      // 4) Reajustes visuales
       syncHeaderToTable();
-      enforceScrollLimit(); // 👈 aplica la regla por pestaña
+      enforceScrollLimit();
     }
 
     function esc(s){
@@ -1813,7 +1864,8 @@
     q?.addEventListener("keydown", (e)=>{
       if(e.key==="Escape"){
         e.preventDefault();
-        clearSearch();
+        e.stopPropagation();         // ← no dejes que suba al global
+        handleEscape(e);             // ← ahora sigue las etapas
       }
     });
 
@@ -2114,14 +2166,16 @@
 
       inputs.forEach(inp=>{
         inp.addEventListener("keydown", async (ev)=>{
-          if(ev.key==="Enter"){
+          if (ev.key === "Enter"){
             ev.preventDefault();
+            ev.stopPropagation();                 // ← NO dejar que suba
             await doSave(tr, type, id);
             await fetchAll(); render(); reselectRow(type,id);
           }
-          if(ev.key==="Escape"){
+          if (ev.key === "Escape"){
             ev.preventDefault();
-            render(); reselectRow(type,id);
+            ev.stopPropagation();                 // ← NO dejar que suba
+            render(); reselectRow(type,id);       // cancela edición, mantiene selección
           }
         });
       });
@@ -2200,34 +2254,57 @@
       hideActions();
     }
 
-    // Go back / ESC global
-    function escReset(){
-      const editing = document.querySelector('tr[data-editing="1"]');
-      if(editing){ render(); hideActions(); }
+    // Escape por ETAPAS (sin “resetear” todo de golpe)
+    function handleEscape(e){
+      // 1) Si hay una fila en edición → cancelar edición (mantener selección)
+      const editing = getEditingRow?.();
+      if (editing){
+        const type = editing.dataset.type;
+        const id   = editing.dataset.id;
+        render();
+        reselectRow(type, id);      // vuelve a dejarla seleccionada
+        return true;
+      }
 
-      $$("#lists tr.selected").forEach(tr=>tr.classList.remove("selected"));
-      lastAnchorRow = null; // 🔹 resetea el ancla cuando limpias selección
+      // 2) Si hay selección → solo limpiar la selección
+      const selected = getSelectedRows?.() || [];
+      if (selected.length){
+        clearAllSelection();
+        lastAnchorRow = null;
+        hideActions();
+        return true;
+      }
 
-      ["persona","bien","serv","inv"].forEach(id=>{
-        const sec = document.getElementById("sec-"+id);
-        if(sec && sec.style.display!=="none"){
-          sec.querySelectorAll("input,textarea,select").forEach(i=>i.value="");
-          sec.style.display="none";
-        }
-      });
+      // 3) Si hay texto en el buscador → limpiar buscador (sin cambiar pestaña)
+      const qi = document.getElementById("q");
+      if (qi && qi.value.trim()){
+        clearSearch();
+        return true;
+      }
 
-      clearSearch();
+      // 4) Si hay un formulario abierto a la izquierda → ocultarlo (no borro lo escrito)
+      const openForm = ["persona","bien","serv","inv"]
+        .map(id => document.getElementById("sec-"+id))
+        .find(sec => sec && sec.style.display !== "none");
+      if (openForm){
+        openForm.style.display = "none";
+        updateLeftEmpty?.();
+        return true;
+      }
 
+      // 5) Si no hay nada que hacer → opcional: quitar foco para sacar halos
       const ae = document.activeElement;
-      if(ae && typeof ae.blur === "function"){ ae.blur(); }
-
-      ["msg-persona","msg-bien","msg-serv","msg-inv","auth-msg"].forEach(id=>{
-        const m = document.getElementById(id); if(m) m.textContent="";
-      });
-      hideActions();
-      updateLeftEmpty();
+      if (ae && typeof ae.blur === "function"){ ae.blur(); }
+      return false;
     }
-    document.addEventListener("keydown",(e)=>{ if(e.key==="Escape"){ e.preventDefault(); escReset(); }});
+
+    // Listener global → usa las ETAPAS
+    document.addEventListener("keydown",(e)=>{
+      if(e.key === "Escape"){
+        e.preventDefault();
+        handleEscape(e);
+      }
+    });
 
     // Go!
     async function boot(){ await init(); enforceScrollLimit(); }
