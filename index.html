@@ -387,15 +387,24 @@
       table-layout:auto;
     }
 
-    .table-wrap th, .table-wrap td{
+    /* DESPUÉS — celdas centradas verticalmente en TODOS los listados */
+    .table-wrap th,
+    .table-wrap td{
       white-space:nowrap !important;
       word-break:normal !important;
       overflow-wrap:normal !important;
       hyphens:none;
       padding:3px 6px;
-      text-align:left;
-      vertical-align:top;
+      text-align:left;              /* ← no tocamos el centrado horizontal */
+      vertical-align:middle;        /* ← CENTRADO VERTICAL GLOBAL */
       border-bottom:1px solid #efefef;
+    }
+
+    /* Refuerzo de alineación vertical en todas las zonas de la tabla */
+    .table-wrap thead th,
+    .table-wrap tbody td,
+    .table-wrap tfoot td{
+      vertical-align:middle !important;
     }
 
     /* Solo filas de datos (tbody) en Arial y negro */
@@ -413,7 +422,7 @@
 
     .table-wrap thead th{
       position:sticky; top:0; z-index:2;
-      background:#f0f0f0; color:#111; font-weight:400;
+      background:#f0f0f0; color:#0000ff !important; font-weight:400; /* ← azul Inventario */
       padding:2px 6px; line-height:1.05;
       border-bottom:1px solid #e1e1e1;
 
@@ -424,11 +433,6 @@
 
     .table-wrap thead th + th{ border-left:1px solid #e6e6e6; }
     .table-wrap tbody td + td{ border-left:1px solid #efefef; }
-
-    /* INVENTARIO: encabezados azules (RGB 0,0,255) */
-    #list-inventario .table-wrap thead th{
-      color: #0000ff !important;
-    }
 
     /* Inventario: centrar columnas Marca, Cantidad, Precio y Total */
     #list-inventario .table-wrap td[data-field="marca"],
@@ -515,15 +519,18 @@
       display:block;
       min-height:1em; /* ancla mínima de altura */
     }
+
+    /* DESPUÉS — el texto del input se percibe centrado verticalmente */
     .edit-input{
       position:absolute; inset:0; z-index:1;
       width:100%; height:100%;
-      margin:0; padding:3px 6px;           /* mismo padding que el <td> */
-      box-sizing:border-box;               /* evita desbordes/contracción */
+      margin:0; padding:3px 6px;            /* padding simétrico arriba/abajo */
+      box-sizing:border-box;
       border:none !important;
       background:transparent !important;
       border-radius:0;
-      font:inherit; font-weight:400 !important; line-height:inherit;
+      font:inherit; font-weight:400 !important;
+      line-height:1.2;                       /* ← fija una altura de línea estable */
       box-shadow:none !important; outline:none !important;
       -webkit-appearance:none; appearance:none;
     }
@@ -730,6 +737,25 @@
     /* feedback al pasar el mouse */
     .toggle-eye:hover{ filter:brightness(.85); }
 
+    /* ===== Marca en el ticker (Nether + RUC) ===== */
+    #ticker{
+      /* Arial solicitada (con fallbacks estándar) */
+      font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
+
+      /* Mismo color que los encabezados (azul de tus thead th) */
+      color: #0000ff !important;
+
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* “S.A.C.” 2 veces más pequeño que el resto */
+    #ticker .mini-sac{
+      font-size: 0.75em;           /* 2× más pequeño */
+      line-height: 1;
+      vertical-align: baseline;
+    }
+
 </style>
 </head>
 <body>
@@ -754,7 +780,9 @@
 
   <!-- Ticker -->
   <div class="moving-strip" id="tickerWrap">
-    <span class="scroll-text" id="ticker">NETHER S.A.C. / R.U.C. : 20613159216</span>
+    <span class="scroll-text" id="ticker">
+      NETHER <span class="mini-sac">S.A.C.</span> / R.U.C. : 20613159216,
+    </span>
   </div>
 
   <div class="wrap">
