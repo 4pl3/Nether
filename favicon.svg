@@ -4,18 +4,18 @@
      width="512" height="512" viewBox="0 0 512 512">
   <title>Nether favicon</title>
 
-  <!-- Fondo rojo con esquinas MUY redondeadas -->
+  <!-- Fondo rojo muy redondeado -->
   <rect x="0" y="0" width="512" height="512" fill="#c40000" rx="128" ry="128"/>
 
   <defs>
     <path id="arm" d="M0 0 C 72 -26 132 -14 172 20 S 236 92 236 112" />
   </defs>
 
-  <!-- Amarillo más grueso y un poco más grande -->
-  <g fill="none" stroke="#f0d400" stroke-width="84"
+  <!-- Amarillo: más chico y MUCHO más grueso -->
+  <g fill="none" stroke="#f0d400" stroke-width="112"
      stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="2"
      shape-rendering="geometricPrecision"
-     transform="translate(256,256) scale(-1,1) rotate(-25) scale(0.65)">
+     transform="translate(256,256) scale(-1,1) rotate(-25) scale(0.60)">
     <use xlink:href="#arm" />
     <use xlink:href="#arm" transform="rotate(90)" />
     <use xlink:href="#arm" transform="rotate(180)" />
