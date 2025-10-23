@@ -4,8 +4,8 @@
      width="512" height="512" viewBox="0 0 512 512">
   <title>Nether favicon</title>
 
-  <!-- Fondo rojo con esquinas ligeramente redondeadas -->
-  <rect x="0" y="0" width="512" height="512" fill="#c40000" rx="20" ry="20"/>
+  <!-- Fondo rojo con esquinas MUY redondeadas -->
+  <rect x="0" y="0" width="512" height="512" fill="#c40000" rx="128" ry="128"/>
 
   <defs>
     <path id="arm" d="M0 0 C 72 -26 132 -14 172 20 S 236 92 236 112" />
