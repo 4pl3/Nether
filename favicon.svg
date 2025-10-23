@@ -12,8 +12,8 @@
     <path id="arm" d="M-2 0 C 72 -26 132 -14 172 20 S 236 92 236 112" />
   </defs>
 
-  <!-- Molinillo: ramas suaves + corte final plano -->
-  <g fill="none" stroke="#FFFF00" stroke-width="112"
+  <!-- Molinillo: ramas suaves + corte final plano (NEGRO) -->
+  <g fill="none" stroke="#000000" stroke-width="112"
      stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="1"
      vector-effect="non-scaling-stroke"
      shape-rendering="geometricPrecision"
