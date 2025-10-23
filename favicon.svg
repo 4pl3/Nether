@@ -1,19 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>  
-<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="-256 -256 512 512">
-  <title>Pinwheel mirrored right - uniform ends & rounded bg (56)</title>
-  <!-- Fondo rojo con bordes ligeramente redondeados -->
-  <rect x="-256" y="-256" width="512" height="512" fill="#c40000" rx="20" ry="20"/>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     xmlns:xlink="http://www.w3.org/1999/xlink"
+     width="512" height="512" viewBox="0 0 512 512">
+  <title>Nether favicon</title>
+
+  <!-- Fondo rojo con esquinas ligeramente redondeadas -->
+  <rect x="0" y="0" width="512" height="512" fill="#c40000" rx="20" ry="20"/>
+
   <defs>
     <path id="arm" d="M0 0 C 72 -26 132 -14 172 20 S 236 92 236 112" />
   </defs>
+
   <!-- Amarillo, espejado a la derecha, pequeño y centrado -->
   <g fill="none" stroke="#f0d400" stroke-width="56"
      stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="2"
      shape-rendering="geometricPrecision"
-     transform="scale(-1,1) rotate(-25) scale(0.55)">
-    <use href="#arm" />
-    <use href="#arm" transform="rotate(90)" />
-    <use href="#arm" transform="rotate(180)" />
-    <use href="#arm" transform="rotate(270)" />
+     transform="translate(256,256) scale(-1,1) rotate(-25) scale(0.55)">
+    <use xlink:href="#arm" />
+    <use xlink:href="#arm" transform="rotate(90)" />
+    <use xlink:href="#arm" transform="rotate(180)" />
+    <use xlink:href="#arm" transform="rotate(270)" />
   </g>
 </svg>
