@@ -11,11 +11,11 @@
     <path id="arm" d="M0 0 C 72 -26 132 -14 172 20 S 236 92 236 112" />
   </defs>
 
-  <!-- Amarillo, espejado a la derecha, pequeño y centrado -->
-  <g fill="none" stroke="#f0d400" stroke-width="56"
+  <!-- Amarillo más grueso y un poco más grande -->
+  <g fill="none" stroke="#f0d400" stroke-width="84"
      stroke-linecap="butt" stroke-linejoin="round" stroke-miterlimit="2"
      shape-rendering="geometricPrecision"
-     transform="translate(256,256) scale(-1,1) rotate(-25) scale(0.55)">
+     transform="translate(256,256) scale(-1,1) rotate(-25) scale(0.65)">
     <use xlink:href="#arm" />
     <use xlink:href="#arm" transform="rotate(90)" />
     <use xlink:href="#arm" transform="rotate(180)" />
