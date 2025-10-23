@@ -4,8 +4,8 @@
      width="512" height="512" viewBox="0 0 512 512">
   <title>Nether favicon</title>
 
-  <!-- Fondo rojo muy redondeado (rojo máximo) -->
-  <rect x="0" y="0" width="512" height="512" fill="#FF0000" rx="128" ry="128"/>
+  <!-- Fondo rojo muy redondeado -->
+  <rect x="0" y="0" width="512" height="512" fill="#c40000" rx="128" ry="128"/>
 
   <defs>
     <!-- Brazo suavizado con ligero solape hacia el centro (evita microcortes) -->
